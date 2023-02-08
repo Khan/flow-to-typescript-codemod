@@ -16,6 +16,8 @@ import {
   ReactTypes,
   SyntheticEvents,
   MomentTypes,
+  ExpressTypes,
+  CustomUtilityTypes,
 } from "../utils/type-mappings";
 import { State } from "../../runner/state";
 import { matchesFullyQualifiedName } from "../utils/matchers";
@@ -731,6 +733,25 @@ function actuallyMigrateType(
           t.tsQualifiedName(
             t.identifier("moment"),
             t.identifier(MomentTypes[id.right.name as keyof typeof MomentTypes])
+          ),
+          params
+        );
+      }
+
+      // TODO: update imports of these as well.
+      // `$Request` → `Request`, `$Response` → `Response`, `$Application` → `Application`
+      if (id.type === "Identifier" && id.name in ExpressTypes) {
+        return t.tsTypeReference(
+          t.identifier(ExpressTypes[id.name as keyof typeof ExpressTypes]),
+          params
+        );
+      }
+
+      // `$Partial` → `Partial`
+      if (id.type === "Identifier" && id.name in CustomUtilityTypes) {
+        return t.tsTypeReference(
+          t.identifier(
+            CustomUtilityTypes[id.name as keyof typeof CustomUtilityTypes]
           ),
           params
         );
