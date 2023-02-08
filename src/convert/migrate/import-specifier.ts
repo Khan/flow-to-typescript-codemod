@@ -35,8 +35,8 @@ export function maybeMigrateImportSpecifier(
       specifier.local.name = node.local.name;
     }
 
-    // NOTE: `importKind` is always `null` on `ImportSpecifier` nodes
-    // TODO: update the parser to try to fix this
+    // NOTE: `importKind` is always `null` on `ImportSpecifier` nodes so
+    // this doesn't actually work.
     // Handles things like `import {type $Request} from "express";`.
     specifier.importKind = node.importKind;
 

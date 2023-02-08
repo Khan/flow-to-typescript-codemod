@@ -877,8 +877,8 @@ class C {
       expect(await transform(src)).toBe(expected);
     });
 
-    // NOTE: `importKind` is always `null` on `ImportSpecifier` nodes
-    // TODO: update the parser to try to fix this
+    // NOTE: `importKind` is always `null` on `ImportSpecifier` nodes so
+    // this doesn't actually work.
     it.skip("handles a mixed imports", async () => {
       const src = `import {type $Request, app} from "express";`;
       const expected = `import {type Request, app} from "express";`;
