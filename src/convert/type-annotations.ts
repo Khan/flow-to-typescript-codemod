@@ -3,6 +3,7 @@ import traverse from "@babel/traverse";
 import { replaceWith, inheritLocAndComments } from "./utils/common";
 import { migrateType } from "./migrate/type";
 import { migrateTypeParameterDeclaration } from "./migrate/type-parameter";
+import { maybeMigrateImportSpecifier } from "./migrate/import-specifier";
 import { TransformerInput } from "./transformer";
 import { MetaData } from "./migrate/metadata";
 
@@ -77,6 +78,10 @@ export function transformTypeAnnotations({
         state.config.filePath,
         reporter
       );
+    },
+
+    ImportSpecifier(path) {
+      maybeMigrateImportSpecifier(reporter, state, path);
     },
   });
 }

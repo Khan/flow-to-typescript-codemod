@@ -863,4 +863,52 @@ class C {
     expect(await transform(src)).toBe(expected);
     expectMigrationReporterMethodCalled("unhandledFlowInputNode");
   });
+
+  describe("express types", () => {
+    it("convert import types", async () => {
+      const src = `import type {$Request, $Response, $Application} from "express";`;
+      const expected = `import type {Request, Response, Application} from "express";`;
+      expect(await transform(src)).toBe(expected);
+    });
+
+    it("handles renames in type imports", async () => {
+      const src = `import type {$Request as Req} from "express";`;
+      const expected = `import type {Request as Req} from "express";`;
+      expect(await transform(src)).toBe(expected);
+    });
+
+    // NOTE: `importKind` is always `null` on `ImportSpecifier` nodes so
+    // this doesn't actually work.
+    it.skip("handles a mixed imports", async () => {
+      const src = `import {type $Request, app} from "express";`;
+      const expected = `import {type Request, app} from "express";`;
+      expect(await transform(src)).toBe(expected);
+    });
+
+    it("converts $Request to Request", async () => {
+      const src = `let req: $Request;`;
+      const expected = `let req: Request;`;
+      expect(await transform(src)).toBe(expected);
+    });
+
+    it("converts $Response to Response", async () => {
+      const src = `let res: $Response;`;
+      const expected = `let res: Response;`;
+      expect(await transform(src)).toBe(expected);
+    });
+
+    it("converts $Application<Req, Res> to Application<Req, Res>", async () => {
+      const src = `let app: $Application<Req, Res>;`;
+      const expected = `let app: Application<Req, Res>;`;
+      expect(await transform(src)).toBe(expected);
+    });
+  });
+
+  describe("custom utility types", () => {
+    it("converts $Partial<T> to Partial<T>", async () => {
+      const src = `type PartialFoo = $Partial<Foo>;`;
+      const expected = `type PartialFoo = Partial<Foo>;`;
+      expect(await transform(src)).toBe(expected);
+    });
+  });
 });

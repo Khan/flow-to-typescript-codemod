@@ -30,3 +30,13 @@ export const SyntheticEvents = {
 export const MomentTypes = {
   MomentDuration: "Duration",
 } as const;
+
+export const ExpressTypes = {
+  $Request: "Request",
+  $Response: "Response",
+  $Application: "Application",
+} as const;
+
+export const CustomUtilityTypes = {
+  $Partial: "Partial",
+} as const;
