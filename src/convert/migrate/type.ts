@@ -738,7 +738,6 @@ function actuallyMigrateType(
         );
       }
 
-      // TODO: update imports of these as well.
       // `$Request` → `Request`, `$Response` → `Response`, `$Application` → `Application`
       if (id.type === "Identifier" && id.name in ExpressTypes) {
         return t.tsTypeReference(
