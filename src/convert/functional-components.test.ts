@@ -144,4 +144,41 @@ describe("Converting functional components", () => {
       expect(await transform(src)).toBe(expected);
     });
   });
+
+  describe("Exporting function", () => {
+    it("handles named exports", async () => {
+      const src = `export function Comp(props: Props) { return <h1>Hello</h1> };`;
+      const expected = `export const Comp: React.FC<Props> = function(props) { return <h1>Hello</h1> };;`;
+      expect(await transform(src)).toBe(expected);
+    });
+
+    it("handles default exports with props param", async () => {
+      const src = `export default function Comp(props: Props) { return <h1>Hello</h1> };`;
+      const expected = dedent`const Comp: React.FC<Props> = function(props) { return <h1>Hello</h1> };
+      export default Comp;`;
+      expect(await transform(src)).toBe(expected);
+    });
+
+    it("handles default exports with inline props", async () => {
+      const src = `export default function Comp(props: {|foo: string, bar: string|}): React.Node { return <h1>Hello</h1> };`;
+      const expected = dedent`const Comp: React.FC<{
+        foo: string,
+        bar: string
+      }> = function(props) { return <h1>Hello</h1> };
+      export default Comp;`;
+      expect(await transform(src)).toBe(expected);
+    });
+
+    it("handles default exports with destructured props", async () => {
+      const src = `export default function Comp({foo, bar}: Props): React.Node { return <h1>Hello</h1> };`;
+      const expected = dedent`const Comp: React.FC<Props> = function(
+        {
+          foo,
+          bar,
+        },
+      ) { return <h1>Hello</h1> };
+      export default Comp;`;
+      expect(await transform(src)).toBe(expected);
+    });
+  });
 });

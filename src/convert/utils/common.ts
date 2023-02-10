@@ -213,6 +213,28 @@ export function replaceWith(
 }
 
 /**
+ * Recast uses a different format for comments. We need to manually copy them over to the first
+ * new node in the array of nodes that was passed to us.
+ * We also attach the old location so that Recast prints it at the same place.
+ *
+ * https://github.com/benjamn/recast/issues/572
+ */
+export function replaceWithMultiple(
+  path: NodePath<t.Node>,
+  nodes: t.Node[],
+  filePath: string,
+  reporter: MigrationReporter
+) {
+  inheritLocAndComments(path.node, nodes[0]);
+  try {
+    path.replaceWithMultiple(nodes);
+  } catch (e) {
+    // Catch the error so conversion of the file can continue.
+    reporter.error(filePath, e);
+  }
+}
+
+/**
  * Tries to return the nearest LOC, and returns a default if not found.
  */
 export function getLoc<TNodeType extends t.Node>(
