@@ -82,7 +82,7 @@ export function annotateParamsWithFlowTypeAtPos(
         (async () => {
           // Get the type Flow is inferring for this unannotated function parameter.
           const flowType = await flowTypeAtPos(state, param.loc!, reporter);
-          if (flowType === null) return;
+          if (flowType == null) return;
 
           // If Flow inferred `empty` then that means there were no calls to the
           // function and therefore no “lower type bounds” for the parameter. This

@@ -369,7 +369,7 @@ describe("transform type annotations", () => {
 
   it("Converts React.Node to React.ReactElement in function return", async () => {
     const src = `const Component = (props: Props): React.Node => {return <div />};`;
-    const expected = `const Component = (props: Props): React.ReactElement => {return <div />};`;
+    const expected = `const Component: React.FC<Props> = props => {return <div />};`;
     expect(await transform(src)).toBe(expected);
   });
 
@@ -455,7 +455,7 @@ describe("transform type annotations", () => {
 
   it("Converts React.Node to React.ReactElement in arrow function", async () => {
     const src = `const Component = (props: Props): React.Node => {return <div />};`;
-    const expected = `const Component = (props: Props): React.ReactElement => {return <div />};`;
+    const expected = `const Component: React.FC<Props> = props => {return <div />};`;
     expect(await transform(src)).toBe(expected);
   });
 
@@ -464,7 +464,7 @@ describe("transform type annotations", () => {
       if (foo) return (<div />);
       return null;
     };`;
-    const expected = dedent`const Component = (props: Props): React.ReactElement | null => {
+    const expected = dedent`const Component: React.FC<Props> = props => {
       if (foo) return (<div />);
       return null;
     };`;
@@ -473,7 +473,7 @@ describe("transform type annotations", () => {
 
   it("Converts React.Node to React.ReactElement in normal function", async () => {
     const src = `function Component(props: Props): React.Node {return <div />};`;
-    const expected = `function Component(props: Props): React.ReactElement {return <div />};`;
+    const expected = `const Component: React.FC<Props> = function(props) {return <div />};`;
     expect(await transform(src)).toBe(expected);
   });
 
@@ -482,7 +482,7 @@ describe("transform type annotations", () => {
       if (foo) return (<div />);
       return null;
     };`;
-    const expected = dedent`function Component(props: Props): React.ReactElement | null {
+    const expected = dedent`const Component: React.FC<Props> = function(props) {
       if (foo) return (<div />);
       return null;
     };`;
