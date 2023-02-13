@@ -54,16 +54,15 @@ export function transformFunctionalComponents({
               // HACK(kevinb): We mutate the nodes directly instead of using `replaceWith`
               // because that function will end up in an infinite loop if we try to pass
               // it a node that contains any descendent nodes of the original node.
-              id.typeAnnotation = t.tsTypeAnnotation(
-                t.tsTypeReference(
-                  t.tsQualifiedName(t.identifier("React"), t.identifier("FC")),
-                  t.tsTypeParameterInstantiation([
-                    param.typeAnnotation.typeAnnotation,
-                  ])
-                )
+              id.typeAnnotation = createReactFcType(
+                param.typeAnnotation.typeAnnotation
               );
+
+              // We always include a return type so that the output code conforms to
+              // https://khanacademy.atlassian.net/wiki/spaces/ENG/pages/2201682700/TypeScript+Best+Practices#Functions-should-have-return-types
+              arrowFn.returnType = createReturnType();
+
               delete param.typeAnnotation;
-              delete arrowFn.returnType;
             }
           }
         }
@@ -100,29 +99,24 @@ export function transformFunctionalComponents({
               // HACK(kevinb): We mutate the nodes directly instead of using `replaceWith`
               // because that function will end up in an infinite loop if we try to pass
               // it a node that contains any descendent nodes of the original node.
-              id.typeAnnotation = t.tsTypeAnnotation(
-                t.tsTypeReference(
-                  t.tsQualifiedName(t.identifier("React"), t.identifier("FC")),
-                  t.tsTypeParameterInstantiation([
-                    param.typeAnnotation.typeAnnotation,
-                  ])
-                )
+              id.typeAnnotation = createReactFcType(
+                param.typeAnnotation.typeAnnotation
               );
+
+              const fn = t.functionExpression(null, params, body);
+
+              // We always include a return type so that the output code conforms to
+              // https://khanacademy.atlassian.net/wiki/spaces/ENG/pages/2201682700/TypeScript+Best+Practices#Functions-should-have-return-types
+              fn.returnType = createReturnType();
 
               replaceWith(
                 path,
-                t.variableDeclaration("const", [
-                  t.variableDeclarator(
-                    id,
-                    t.functionExpression(null, params, body)
-                  ),
-                ]),
+                t.variableDeclaration("const", [t.variableDeclarator(id, fn)]),
                 state.config.filePath,
                 reporter
               );
 
               delete param.typeAnnotation;
-              delete path.node.returnType;
             }
           }
         }
@@ -160,23 +154,19 @@ export function transformFunctionalComponents({
               // HACK(kevinb): We mutate the nodes directly instead of using `replaceWith`
               // because that function will end up in an infinite loop if we try to pass
               // it a node that contains any descendent nodes of the original node.
-              id.typeAnnotation = t.tsTypeAnnotation(
-                t.tsTypeReference(
-                  t.tsQualifiedName(t.identifier("React"), t.identifier("FC")),
-                  t.tsTypeParameterInstantiation([
-                    param.typeAnnotation.typeAnnotation,
-                  ])
-                )
+              id.typeAnnotation = createReactFcType(
+                param.typeAnnotation.typeAnnotation
               );
 
+              const fn = t.functionExpression(null, params, body);
+
+              // We always include a return type so that the output code conforms to
+              // https://khanacademy.atlassian.net/wiki/spaces/ENG/pages/2201682700/TypeScript+Best+Practices#Functions-should-have-return-types
+              fn.returnType = createReturnType();
+
               const newNodes = [
-                t.variableDeclaration("const", [
-                  t.variableDeclarator(
-                    id,
-                    t.functionExpression(null, params, body)
-                  ),
-                ]),
-                t.exportDefaultDeclaration(t.identifier("Comp")),
+                t.variableDeclaration("const", [t.variableDeclarator(id, fn)]),
+                t.exportDefaultDeclaration(t.identifier(id.name)),
               ];
 
               replaceWithMultiple(
@@ -187,7 +177,6 @@ export function transformFunctionalComponents({
               );
 
               delete param.typeAnnotation;
-              delete node.declaration.returnType;
             }
           }
         }
@@ -196,4 +185,27 @@ export function transformFunctionalComponents({
   });
 
   return Promise.all(awaitPromises);
+}
+
+function createReturnType() {
+  return t.tsTypeAnnotation(
+    t.tsTypeReference(
+      t.tsQualifiedName(
+        // Using `React.ReactNode` as the return type is incompatible
+        // with `React.FC<>` so we return `React.ReactElement`.  The
+        // actual return type of `React.FC<>` is `React.ReactElement | null`.
+        t.identifier("React"),
+        t.identifier("ReactElement")
+      )
+    )
+  );
+}
+
+function createReactFcType(propsType: t.TSType) {
+  return t.tsTypeAnnotation(
+    t.tsTypeReference(
+      t.tsQualifiedName(t.identifier("React"), t.identifier("FC")),
+      t.tsTypeParameterInstantiation([propsType])
+    )
+  );
 }
