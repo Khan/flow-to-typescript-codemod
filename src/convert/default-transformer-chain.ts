@@ -9,6 +9,7 @@ import {
   privateTypeTransformRunner,
   typeAnnotationTransformRunner,
   removeFlowCommentTransformRunner,
+  functionalComponentTransformerRunner,
 } from "./transform-runners";
 import { Transformer } from "./transformer";
 
@@ -26,4 +27,5 @@ export const defaultTransformerChain: readonly Transformer[] = [
   jsxSpreadTransformRunner,
   importTransformRunner,
   removeFlowCommentTransformRunner,
+  functionalComponentTransformerRunner,
 ];

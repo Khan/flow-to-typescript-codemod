@@ -11,6 +11,7 @@ import { TransformerInput, Transformer } from "./transformer";
 import { transformTypeAnnotations } from "./type-annotations";
 import { removeFlowComments } from "./remove-flow-comments";
 import { annotateNoFlow } from "./annotate-no-flow";
+import { transformFunctionalComponents } from "./functional-components";
 
 const standardTransformRunnerFactory = (transformer: Transformer) => {
   return (transformerInput: TransformerInput) => {
@@ -59,3 +60,9 @@ export const removeFlowCommentTransformRunner: Transformer =
 
 export const annotateNoFlowTransformRunner: Transformer =
   standardTransformRunnerFactory(annotateNoFlow);
+
+export const functionalComponentTransformerRunner: Transformer = async (
+  transformerInput: TransformerInput
+) => {
+  await transformFunctionalComponents(transformerInput);
+};

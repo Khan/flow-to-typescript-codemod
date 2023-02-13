@@ -17,7 +17,7 @@ describe("transform type annotations", () => {
 
   it("converts React$Element", async () => {
     const src = `const Component = (props: Props): React$Element => {return <div />};`;
-    const expected = `const Component = (props: Props): React.Element => {return <div />};`;
+    const expected = `const Component: React.FC<Props> = (props): React.ReactElement => {return <div />};`;
     expect(await transform(src)).toBe(expected);
   });
 
@@ -29,7 +29,7 @@ describe("transform type annotations", () => {
 
   it("converts Flow namespaces", async () => {
     const src = `const Component = (props: Props): Any$Thing => {return <div />};`;
-    const expected = `const Component = (props: Props): Any.Thing => {return <div />};`;
+    const expected = `const Component: React.FC<Props> = (props): React.ReactElement => {return <div />};`;
     expect(await transform(src)).toBe(expected);
   });
 
@@ -40,7 +40,8 @@ describe("transform type annotations", () => {
       },
     });
     const src = `const Component = (props: Props): Any$Thing => {return <div />};`;
-    expect(await transform(src, state)).toBe(src);
+    const expected = `const Component: React.FC<Props> = (props): React.ReactElement => {return <div />};`;
+    expect(await transform(src, state)).toBe(expected);
   });
 
   it("Converts private types in type parameter instantiations", async () => {
