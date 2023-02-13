@@ -296,7 +296,7 @@ describe("transform spread JSX attributes", () => {
       foo: number
     };
 
-    const Foobar: React.FC<Props> = function(x) { 
+    const Foobar: React.FC<Props> = function(x): React.ReactElement { 
       const { it, ...rest } = x;
       const El = Mine;
       return <El it={it} {...rest} />
