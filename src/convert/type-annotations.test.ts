@@ -911,4 +911,10 @@ class C {
       expect(await transform(src)).toBe(expected);
     });
   });
+
+  it("Converts indexed access types", async () => {
+    const src = `type Foo = Obj["Foo"];`;
+    const expected = `type Foo = Obj['Foo'];`;
+    expect(await transform(src)).toBe(expected);
+  });
 });
