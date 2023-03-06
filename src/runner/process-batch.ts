@@ -112,10 +112,12 @@ export async function processBatchAsync(
                 path.normalize(options.target)
               );
 
-        const tsFilePath = targetFilePath.replace(
-          /\.jsx?$/,
-          state.hasJsx || options.forceTSX ? ".tsx" : ".ts"
-        );
+        const tsFilePath = targetFilePath
+          .replace(/_([^\.]+)\.(jsx?)$/, ".$1.$2")
+          .replace(
+            /\.jsx?$/,
+            state.hasJsx || options.forceTSX ? ".tsx" : ".ts"
+          );
 
         if (isTestFile) {
           const fileName = path.basename(filePath);
