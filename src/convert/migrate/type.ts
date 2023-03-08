@@ -555,7 +555,11 @@ function actuallyMigrateType(
           );
         }
         const reactElement = t.tsTypeReference(
-          t.tsQualifiedName(t.identifier("React"), t.identifier("ReactElement"))
+          t.tsQualifiedName(
+            t.identifier("React"),
+            t.identifier("ReactElement")
+          ),
+          t.tsTypeParameterInstantiation([t.tsAnyKeyword()])
         );
         if (hasNull) {
           return t.tsUnionType([reactElement, t.tsNullKeyword()]);

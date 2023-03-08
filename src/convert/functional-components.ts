@@ -196,7 +196,8 @@ function createReturnType() {
         // actual return type of `React.FC<>` is `React.ReactElement | null`.
         t.identifier("React"),
         t.identifier("ReactElement")
-      )
+      ),
+      t.tsTypeParameterInstantiation([t.tsAnyKeyword()])
     )
   );
 }
