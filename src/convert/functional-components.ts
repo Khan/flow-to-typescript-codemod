@@ -51,13 +51,6 @@ export function transformFunctionalComponents({
                   arrowFn.returnType.typeAnnotation.typeName.right.name
                 ))
             ) {
-              // HACK(kevinb): We mutate the nodes directly instead of using `replaceWith`
-              // because that function will end up in an infinite loop if we try to pass
-              // it a node that contains any descendent nodes of the original node.
-              id.typeAnnotation = createReactFcType(
-                param.typeAnnotation.typeAnnotation
-              );
-
               // We always include a return type so that the output code conforms to
               // https://khanacademy.atlassian.net/wiki/spaces/ENG/pages/2201682700/TypeScript+Best+Practices#Functions-should-have-return-types
               arrowFn.returnType = createReturnType();
@@ -96,13 +89,6 @@ export function transformFunctionalComponents({
                   returnType.typeAnnotation.typeName.right.name
                 ))
             ) {
-              // HACK(kevinb): We mutate the nodes directly instead of using `replaceWith`
-              // because that function will end up in an infinite loop if we try to pass
-              // it a node that contains any descendent nodes of the original node.
-              id.typeAnnotation = createReactFcType(
-                param.typeAnnotation.typeAnnotation
-              );
-
               const fn = t.functionExpression(null, params, body);
 
               // We always include a return type so that the output code conforms to
@@ -151,13 +137,6 @@ export function transformFunctionalComponents({
                   returnType.typeAnnotation.typeName.right.name
                 ))
             ) {
-              // HACK(kevinb): We mutate the nodes directly instead of using `replaceWith`
-              // because that function will end up in an infinite loop if we try to pass
-              // it a node that contains any descendent nodes of the original node.
-              id.typeAnnotation = createReactFcType(
-                param.typeAnnotation.typeAnnotation
-              );
-
               const fn = t.functionExpression(null, params, body);
 
               // We always include a return type so that the output code conforms to
@@ -197,15 +176,6 @@ function createReturnType() {
         t.identifier("React"),
         t.identifier("ReactElement")
       )
-    )
-  );
-}
-
-function createReactFcType(propsType: t.TSType) {
-  return t.tsTypeAnnotation(
-    t.tsTypeReference(
-      t.tsQualifiedName(t.identifier("React"), t.identifier("FC")),
-      t.tsTypeParameterInstantiation([propsType])
     )
   );
 }
