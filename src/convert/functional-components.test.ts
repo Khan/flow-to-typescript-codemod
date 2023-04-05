@@ -6,7 +6,7 @@ jest.mock("./flow/type-at-pos.ts");
 
 describe("Converting functional components", () => {
   describe("Arrow functions", () => {
-    it("adds React.FC<Props> type annotation, removes Props type annotation", async () => {
+    it("adds return type annotation", async () => {
       const src = `const Comp = (props: Props) => { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
         `"const Comp = (props: Props): React.ReactElement => { return <h1>Hello</h1> };"`
@@ -66,7 +66,7 @@ describe("Converting functional components", () => {
   });
 
   describe("Anonymous function expressions", () => {
-    it("adds React.FC<Props> type annotation, removes Props type annotation", async () => {
+    it("adds return type annotation", async () => {
       const src = `const Comp = function (props: Props) { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
         `"const Comp = function(props: Props): React.ReactElement { return <h1>Hello</h1> };"`
@@ -216,10 +216,10 @@ describe("Converting functional components", () => {
   });
 });
 
-describe("Doesn't treat non-component functions as components", () => {
+describe("Non-component functions as components", () => {
   describe("Arrow functions", () => {
-    it("adds React.FC<Props> type annotation, removes Props type annotation", async () => {
-      const src = `const Comp = (props: Props) => { return {foo: props.foo, bar: props.bar}; };`;
+    it("doesn't treat mapPropsToState as a component", async () => {
+      const src = `const mapPropsToState = (props: Props) => { return {foo: props.foo, bar: props.bar}; };`;
       expect(await transform(src)).toMatchInlineSnapshot(
         `"const Comp = (props: Props) => { return {foo: props.foo, bar: props.bar}; };"`
       );
@@ -227,8 +227,8 @@ describe("Doesn't treat non-component functions as components", () => {
   });
 
   describe("Exporting function", () => {
-    it("handles named exports", async () => {
-      const src = `export function Comp(props: Props) { return {foo: props.foo, bar: props.bar}; };`;
+    it("doesn't treat mapPropsToState as a component", async () => {
+      const src = `export function mapPropsToState(props: Props) { return {foo: props.foo, bar: props.bar}; };`;
       expect(await transform(src)).toMatchInlineSnapshot(
         `"export function Comp(props: Props) { return {foo: props.foo, bar: props.bar}; };"`
       );
