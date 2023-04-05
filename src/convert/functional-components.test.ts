@@ -9,21 +9,21 @@ describe("Converting functional components", () => {
     it("adds React.FC<Props> type annotation, removes Props type annotation", async () => {
       const src = `const Comp = (props: Props) => { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = (props): React.ReactElement => { return <h1>Hello</h1> };"`
+        `"const Comp = (props: Props): React.ReactElement => { return <h1>Hello</h1> };"`
       );
     });
 
     it("works with FooProps", async () => {
       const src = `const Comp = (props: FooProps) => { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = (props): React.ReactElement => { return <h1>Hello</h1> };"`
+        `"const Comp = (props: FooProps): React.ReactElement => { return <h1>Hello</h1> };"`
       );
     });
 
     it("works on lambdas", async () => {
       const src = `const Comp = (props: FooProps) => <h1>Hello</h1>;`;
       expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = (props): React.ReactElement => <h1>Hello</h1>;"`
+        `"const Comp = (props: FooProps): React.ReactElement => <h1>Hello</h1>;"`
       );
     });
 
@@ -34,26 +34,31 @@ describe("Converting functional components", () => {
           {
             foo,
             bar,
-          },
+          }: Props,
         ): React.ReactElement => { return <h1>Hello</h1> };"
       `);
     });
 
     it("works on functions with inline props type and React.Node return type", async () => {
       const src = `const Comp = (props: {|foo: string, bar: string|}): React.Node => { return <h1>Hello</h1> };`;
-      expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = (props): React.ReactElement => { return <h1>Hello</h1> };"`
-      );
+      expect(await transform(src)).toMatchInlineSnapshot(`
+        "const Comp = (
+          props: {
+            foo: string,
+            bar: string
+          },
+        ): React.ReactElement => { return <h1>Hello</h1> };"
+      `);
     });
 
     it("works with components defined within another function", async () => {
       const src = dedent`const OuterComp = (props: OuterProps): React.Node => {
-        const InnnerComp = (props: InnerProps) => <h1>Hello</h1>;
+        const InnnerComp = (props: InnerProps): React.Node => <h1>Hello</h1>;
         return <InnerComp />;
       }`;
       expect(await transform(src)).toMatchInlineSnapshot(`
-        "const OuterComp = (props): React.ReactElement => {
-          const InnnerComp = (props): React.ReactElement => <h1>Hello</h1>;
+        "const OuterComp = (props: OuterProps): React.ReactElement => {
+          const InnnerComp = (props: InnerProps): React.ReactElement => <h1>Hello</h1>;
           return <InnerComp />;
         }"
       `);
@@ -64,14 +69,14 @@ describe("Converting functional components", () => {
     it("adds React.FC<Props> type annotation, removes Props type annotation", async () => {
       const src = `const Comp = function (props: Props) { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = function(props): React.ReactElement { return <h1>Hello</h1> };"`
+        `"const Comp = function(props: Props): React.ReactElement { return <h1>Hello</h1> };"`
       );
     });
 
     it("works with FooProps", async () => {
       const src = `const Comp = function (props: FooProps) { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = function(props): React.ReactElement { return <h1>Hello</h1> };"`
+        `"const Comp = function(props: FooProps): React.ReactElement { return <h1>Hello</h1> };"`
       );
     });
 
@@ -82,26 +87,32 @@ describe("Converting functional components", () => {
           {
             foo,
             bar,
-          },
+          }: Props,
         ): React.ReactElement { return <h1>Hello</h1> };"
       `);
     });
 
     it("works on functions with inline props type and React.Node return type", async () => {
       const src = `const Comp = function (props: {|foo: string, bar: string|}): React.Node { return <h1>Hello</h1> };`;
-      expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = function(props): React.ReactElement { return <h1>Hello</h1> };"`
-      );
+      expect(await transform(src)).toMatchInlineSnapshot(`
+        "const Comp = function(
+          props: {
+            foo: string,
+            bar: string
+          },
+        ): React.ReactElement { return <h1>Hello</h1> };"
+      `);
     });
 
+    // FIXME
     it("works with components defined within another function", async () => {
       const src = dedent`const OuterComp = function (props: OuterProps): React.Node {
         const InnnerComp = function (props: InnerProps) { return <h1>Hello</h1>; };
         return <InnerComp />;
       }`;
       expect(await transform(src)).toMatchInlineSnapshot(`
-        "const OuterComp = function(props): React.ReactElement {
-          const InnnerComp = function(props): React.ReactElement { return <h1>Hello</h1>; };
+        "const OuterComp = function(props: OuterProps): React.ReactElement {
+          const InnnerComp = function(props: InnerProps): React.ReactElement { return <h1>Hello</h1>; };
           return <InnerComp />;
         }"
       `);
@@ -112,14 +123,14 @@ describe("Converting functional components", () => {
     it("converts it to an function expression", async () => {
       const src = `function Comp(props: Props) { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = function(props): React.ReactElement { return <h1>Hello</h1> };"`
+        `"const Comp = function(props: Props): React.ReactElement { return <h1>Hello</h1> };"`
       );
     });
 
     it("works with FooProps", async () => {
       const src = `function Comp(props: FooProps) { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = function(props): React.ReactElement { return <h1>Hello</h1> };"`
+        `"const Comp = function(props: FooProps): React.ReactElement { return <h1>Hello</h1> };"`
       );
     });
 
@@ -130,16 +141,21 @@ describe("Converting functional components", () => {
           {
             foo,
             bar,
-          },
+          }: Props,
         ): React.ReactElement { return <h1>Hello</h1> };"
       `);
     });
 
     it("works on functions with inline props type and React.Node return type", async () => {
       const src = `function Comp(props: {|foo: string, bar: string|}): React.Node { return <h1>Hello</h1> };`;
-      expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = function(props): React.ReactElement { return <h1>Hello</h1> };"`
-      );
+      expect(await transform(src)).toMatchInlineSnapshot(`
+        "const Comp = function(
+          props: {
+            foo: string,
+            bar: string
+          },
+        ): React.ReactElement { return <h1>Hello</h1> };"
+      `);
     });
 
     it("works with components defined within another function", async () => {
@@ -148,8 +164,8 @@ describe("Converting functional components", () => {
         return <InnerComp />;
       }`;
       expect(await transform(src)).toMatchInlineSnapshot(`
-        "const OuterComp = function(props): React.ReactElement {
-          const InnnerComp = function(props): React.ReactElement { return <h1>Hello</h1>; };
+        "const OuterComp = function(props: OuterProps): React.ReactElement {
+          const InnnerComp = function(props: InnerProps): React.ReactElement { return <h1>Hello</h1>; };
           return <InnerComp />;
         };"
       `);
@@ -160,14 +176,14 @@ describe("Converting functional components", () => {
     it("handles named exports", async () => {
       const src = `export function Comp(props: Props) { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
-        `"export const Comp = function(props): React.ReactElement { return <h1>Hello</h1> };;"`
+        `"export const Comp = function(props: Props): React.ReactElement { return <h1>Hello</h1> };;"`
       );
     });
 
     it("handles default exports with props param", async () => {
       const src = `export default function Comp(props: Props) { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(`
-        "const Comp = function(props): React.ReactElement { return <h1>Hello</h1> };
+        "const Comp = function(props: Props): React.ReactElement { return <h1>Hello</h1> };
         export default Comp;"
       `);
     });
@@ -175,7 +191,12 @@ describe("Converting functional components", () => {
     it("handles default exports with inline props", async () => {
       const src = `export default function Comp(props: {|foo: string, bar: string|}): React.Node { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(`
-        "const Comp = function(props): React.ReactElement { return <h1>Hello</h1> };
+        "const Comp = function(
+          props: {
+            foo: string,
+            bar: string
+          },
+        ): React.ReactElement { return <h1>Hello</h1> };
         export default Comp;"
       `);
     });
@@ -187,10 +208,30 @@ describe("Converting functional components", () => {
           {
             foo,
             bar,
-          },
+          }: Props,
         ): React.ReactElement { return <h1>Hello</h1> };
         export default Comp;"
       `);
+    });
+  });
+});
+
+describe("Doesn't treat non-component functions as components", () => {
+  describe("Arrow functions", () => {
+    it("adds React.FC<Props> type annotation, removes Props type annotation", async () => {
+      const src = `const Comp = (props: Props) => { return {foo: props.foo, bar: props.bar}; };`;
+      expect(await transform(src)).toMatchInlineSnapshot(
+        `"const Comp = (props: Props) => { return {foo: props.foo, bar: props.bar}; };"`
+      );
+    });
+  });
+
+  describe("Exporting function", () => {
+    it("handles named exports", async () => {
+      const src = `export function Comp(props: Props) { return {foo: props.foo, bar: props.bar}; };`;
+      expect(await transform(src)).toMatchInlineSnapshot(
+        `"export function Comp(props: Props) { return {foo: props.foo, bar: props.bar}; };"`
+      );
     });
   });
 });
