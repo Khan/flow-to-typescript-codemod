@@ -369,7 +369,7 @@ describe("transform type annotations", () => {
 
   it("Converts React.Node to React.ReactElement in function return", async () => {
     const src = `const Component = (props: Props): React.Node => {return <div />};`;
-    const expected = `const Component = (props): React.ReactElement => {return <div />};`;
+    const expected = `const Component = (props: Props): React.ReactElement => {return <div />};`;
     expect(await transform(src)).toBe(expected);
   });
 
@@ -415,9 +415,7 @@ describe("transform type annotations", () => {
     ) => {
       return <Test {...props} globals={globals} />;
     };`;
-    const expected = dedent`const Test = (
-      props: Props & DefaultProps,
-    ) => {
+    const expected = dedent`const Test = (props: Props & DefaultProps) => {
       return <Test {...props} globals={globals} />;
     };`;
     expect(await transform(src)).toBe(expected);
@@ -455,7 +453,7 @@ describe("transform type annotations", () => {
 
   it("Converts React.Node to React.ReactElement in arrow function", async () => {
     const src = `const Component = (props: Props): React.Node => {return <div />};`;
-    const expected = `const Component = (props): React.ReactElement => {return <div />};`;
+    const expected = `const Component = (props: Props): React.ReactElement => {return <div />};`;
     expect(await transform(src)).toBe(expected);
   });
 
@@ -464,7 +462,7 @@ describe("transform type annotations", () => {
       if (foo) return (<div />);
       return null;
     };`;
-    const expected = dedent`const Component = (props): React.ReactElement => {
+    const expected = dedent`const Component = (props: Props): React.ReactElement => {
       if (foo) return (<div />);
       return null;
     };`;
@@ -473,7 +471,7 @@ describe("transform type annotations", () => {
 
   it("Converts React.Node to React.ReactElement in normal function", async () => {
     const src = `function Component(props: Props): React.Node {return <div />};`;
-    const expected = `const Component = function(props): React.ReactElement {return <div />};`;
+    const expected = `const Component = function(props: Props): React.ReactElement {return <div />};`;
     expect(await transform(src)).toBe(expected);
   });
 
@@ -482,7 +480,7 @@ describe("transform type annotations", () => {
       if (foo) return (<div />);
       return null;
     };`;
-    const expected = dedent`const Component = function(props): React.ReactElement {
+    const expected = dedent`const Component = function(props: Props): React.ReactElement {
       if (foo) return (<div />);
       return null;
     };`;
