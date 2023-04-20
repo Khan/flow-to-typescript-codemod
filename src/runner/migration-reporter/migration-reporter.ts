@@ -28,6 +28,7 @@ enum MigrationReportItemType {
   flowFailToParse = "flowFailToParse",
   foundNonFlowFile = "foundNonFlowFile",
   foundDeclarationFile = "foundDeclarationFile",
+  foundOverrideFile = "foundOverrideFile",
   usedJSXSpread = "usedJSXSpread",
   unsupportedComponentProp = "unsupportedComponentProp",
   maybeNeedTypes = "maybeNeedTypes",
@@ -364,6 +365,16 @@ class MigrationReporter {
       filePath,
       { start: { column: 0, line: 0 }, end: { column: 0, line: 0 } },
       "The codemod skipped this file because it contains Flow type declarations. Declarations are ignored since they often have issues parsing or conflict with TS declarations."
+    );
+  }
+
+  foundOverrideFile(filePath: string) {
+    this.log(
+      MigrationReportItemType.foundOverrideFile,
+      MigrationReportItemSeverity.info,
+      filePath,
+      { start: { column: 0, line: 0 }, end: { column: 0, line: 0 } },
+      "The codemod skipped this file because it has an override file which will be used instead."
     );
   }
 
