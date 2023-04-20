@@ -44,6 +44,21 @@ export async function processBatchAsync(
         ) {
           return;
         }
+
+        // Checks if a .ts override file exists and stops early
+        // if there is one.
+        if (fs.existsSync(filePath.replace(/\.jsx?$/, ".ts"))) {
+          reporter.foundDeclarationFile(filePath);
+          return;
+        }
+
+        // Checks if a .tsx override file exists and stops early
+        // if there is one.
+        if (fs.existsSync(filePath.replace(/\.jsx?$/, ".tsx"))) {
+          reporter.foundDeclarationFile(filePath);
+          return;
+        }
+
         const fileBuffer = await fs.readFile(filePath);
 
         const fileText = fileBuffer.toString("utf8");
