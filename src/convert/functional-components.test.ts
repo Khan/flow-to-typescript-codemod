@@ -221,7 +221,7 @@ describe("Non-component functions as components", () => {
     it("doesn't treat mapPropsToState as a component", async () => {
       const src = `const mapPropsToState = (props: Props) => { return {foo: props.foo, bar: props.bar}; };`;
       expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = (props: Props) => { return {foo: props.foo, bar: props.bar}; };"`
+        `"const mapPropsToState = (props: Props) => { return {foo: props.foo, bar: props.bar}; };"`
       );
     });
   });
@@ -230,7 +230,7 @@ describe("Non-component functions as components", () => {
     it("doesn't treat mapPropsToState as a component", async () => {
       const src = `export function mapPropsToState(props: Props) { return {foo: props.foo, bar: props.bar}; };`;
       expect(await transform(src)).toMatchInlineSnapshot(
-        `"export function Comp(props: Props) { return {foo: props.foo, bar: props.bar}; };"`
+        `"export function mapPropsToState(props: Props) { return {foo: props.foo, bar: props.bar}; };"`
       );
     });
   });
