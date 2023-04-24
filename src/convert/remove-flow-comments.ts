@@ -11,6 +11,52 @@ const flowComments = [
   "$FlowIgnore",
 ];
 
+type CommentKind =
+  | types.namedTypes.Block
+  | types.namedTypes.Line
+  | types.namedTypes.CommentBlock
+  | types.namedTypes.CommentLine;
+
+const filterMapCommentKinds = (comments: CommentKind[] | null | undefined) => {
+  return (
+    comments
+      ?.filter(
+        (comment) => !flowComments.some((c) => comment.value.includes(c))
+      )
+      .map((comment) => {
+        if (comment.value.includes("@noflow")) {
+          return {
+            ...comment,
+            value: comment.value.replace(/@noflow/, "@ts-nocheck"),
+          };
+        }
+
+        return comment;
+      }) || comments
+  );
+};
+
+const filterMapComments = (
+  comments: readonly types.namedTypes.Comment[] | null
+) => {
+  return (
+    comments
+      ?.filter(
+        (comment) => !flowComments.some((c) => comment.value.includes(c))
+      )
+      .map((comment) => {
+        if (comment.value.includes("@noflow")) {
+          return {
+            ...comment,
+            value: comment.value.replace(/@noflow/, "@ts-nocheck"),
+          };
+        }
+
+        return comment;
+      }) || comments
+  );
+};
+
 /**
  * Scan through top level programs, or code blocks and remove Flow-specific comments
  */
@@ -24,23 +70,7 @@ const removeComments = (
   const nodes: Array<types.namedTypes.Node> = path.node.body;
 
   for (const rootNode of nodes) {
-    const { comments } = rootNode;
-
-    rootNode.comments =
-      comments
-        ?.filter(
-          (comment) => !flowComments.some((c) => comment.value.includes(c))
-        )
-        .map((comment) => {
-          if (comment.value.includes("@noflow")) {
-            return {
-              ...comment,
-              value: comment.value.replace(/@noflow/, "@ts-nocheck"),
-            };
-          }
-
-          return comment;
-        }) || rootNode.comments;
+    rootNode.comments = filterMapCommentKinds(rootNode.comments);
   }
 };
 
@@ -54,6 +84,10 @@ export function removeFlowComments({ file }: TransformerInput) {
     },
     BlockStatement(path) {
       removeComments(path);
+    },
+    JSXAttribute({ node }) {
+      // @ts-expect-error: comments is readonly
+      node.comments = filterMapComments(node.comments);
     },
   });
 }

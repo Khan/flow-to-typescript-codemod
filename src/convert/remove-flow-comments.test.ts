@@ -86,6 +86,7 @@ describe("remove-flow-pragmas", () => {
   it("should remove suppressions", async () => {
     const src = dedent`
         // $FlowFixMe
+        // $FlowFixMe[incompatible-type]: with a comment
         // $FlowIssue
         // $FlowExpectedError
         // $FlowIgnore
@@ -99,6 +100,28 @@ describe("remove-flow-pragmas", () => {
     `;
 
     expect(await transform(src)).toEqual(expected);
+  });
+
+  it("should remove suppressions inside JSX blocks", async () => {
+    const src = dedent`
+      const myButton = <button
+        // $FlowFixMe
+        // $FlowFixMe[incompatible-type]: with a comment
+        // $FlowIssue
+        // $FlowExpectedError
+        // $FlowIgnore
+        ref={(node) => (this.node = node)}
+      >
+        Click me!
+      </button>;`;
+
+    expect(await transform(src)).toMatchInlineSnapshot(`
+      "const myButton = <button
+        ref={(node) => (this.node = node)}
+      >
+        Click me!
+      </button>;"
+    `);
   });
 
   it("should leave non suppressions", async () => {
