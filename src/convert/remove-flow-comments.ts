@@ -39,7 +39,6 @@ const filterMapCommentKinds = (comments: CommentKind[] | null | undefined) => {
 const filterMapComments = (
   comments: readonly types.namedTypes.Comment[] | null
 ) => {
-  comments; // ?
   return (
     comments
       ?.filter(
