@@ -536,12 +536,23 @@ function actuallyMigrateType(
         ) {
           isRenderMethodOrNonClassMethodReturnType = false;
         }
+
+        // Ignore function declarations as well
+        if (parent.node.type === "FunctionDeclaration") {
+          isRenderMethodOrNonClassMethodReturnType = false;
+        }
       }
+
       if (
-        ((matchesFullyQualifiedName("React", "Node")(id) &&
+        ((matchesFullyQualifiedName("React", "Node")(id) ||
+          // We have a bunch of code where the `render()` methods' return type
+          // is set to `React.Element<"div">` or something like that.  This was
+          // the result of a codemod that inserted inferred types.  We'd like
+          // our code to be more consistent moving forward so if we find a `render()`
+          // method with a return type like this we convert it to `React.ReactNode`.
+          matchesFullyQualifiedName("React", "Element")(id)) &&
           isRenderMethodOrNonClassMethodReturnType) ||
-          matchesFullyQualifiedName("React", "MixedElement")(id)) &&
-        !params
+        (matchesFullyQualifiedName("React", "MixedElement")(id) && !params)
       ) {
         const parentNode = metaData?.path?.parentPath?.node;
         let hasNull = false;
@@ -554,9 +565,22 @@ function actuallyMigrateType(
             parentPath
           );
         }
-        const reactElement = t.tsTypeReference(
-          t.tsQualifiedName(t.identifier("React"), t.identifier("ReactElement"))
-        );
+        const reactElement = matchesFullyQualifiedName(
+          "React",
+          "MixedElement"
+        )(id)
+          ? t.tsTypeReference(
+              t.tsQualifiedName(
+                t.identifier("React"),
+                t.identifier("ReactElement")
+              )
+            )
+          : t.tsTypeReference(
+              t.tsQualifiedName(
+                t.identifier("React"),
+                t.identifier("ReactNode")
+              )
+            );
         if (hasNull) {
           return t.tsUnionType([reactElement, t.tsNullKeyword()]);
         } else {

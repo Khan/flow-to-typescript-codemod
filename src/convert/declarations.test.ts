@@ -524,7 +524,17 @@ describe("transform declarations", () => {
       render(): React.Node {return <div />};
     };`;
     const expected = dedent`class Foo extends React.Component {
-      render(): React.ReactElement {return <div />};
+      render(): React.ReactNode {return <div />};
+    };`;
+    expect(await transform(src)).toBe(expected);
+  });
+
+  it("Converts React.Element<'div'> to React.ReactElement in render", async () => {
+    const src = dedent`class Foo extends React.Component {
+      render(): React.Element<"div"> {return <div />};
+    };`;
+    const expected = dedent`class Foo extends React.Component {
+      render(): React.ReactNode {return <div />};
     };`;
     expect(await transform(src)).toBe(expected);
   });
@@ -537,7 +547,7 @@ describe("transform declarations", () => {
       };
     };`;
     const expected = dedent`class Foo extends React.Component {
-      render(): React.ReactElement | null {
+      render(): React.ReactNode | null {
         if (foo) return (<div />);
         return null;
       };
@@ -550,7 +560,7 @@ describe("transform declarations", () => {
       render = (): React.Node => {return <div />};
     };`;
     const expected = dedent`class Foo extends React.Component {
-      render = (): React.ReactElement => {return <div />};
+      render = (): React.ReactNode => {return <div />};
     };`;
     expect(await transform(src)).toBe(expected);
   });
