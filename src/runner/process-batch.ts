@@ -129,10 +129,8 @@ export async function processBatchAsync(
 
         const tsFilePath = targetFilePath
           .replace(/(__[^_]+__\/)?(.*)_([^\.]+)\.(jsx?)$/, "$1$2.$3.$4")
-          .replace(
-            /\.jsx?$/,
-            state.hasJsx || options.forceTSX ? ".tsx" : ".ts"
-          );
+          .replace(/\.jsx?$/, state.hasJsx || options.forceTSX ? ".tsx" : ".ts")
+          .replace(/\.jsx?\.stories\./, ".stories.");
 
         if (isTestFile) {
           const fileName = path.basename(filePath);
