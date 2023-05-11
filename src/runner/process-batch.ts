@@ -26,6 +26,19 @@ export const recastOptions: Options = {
   objectCurlySpacing: false,
 };
 
+export const renameFilePath = (
+  targetFilePath: string,
+  jsx: boolean
+): string => {
+  const tsFilePath = targetFilePath
+    .replace(/_(test|testdata|flowtest|types)\.(jsx?)$/, ".$1.$2")
+    .replace(".flowtest.", ".typestest.")
+    .replace(/\.jsx?\.stories\./, ".stories.")
+    .replace(/\.jsx?$/, jsx ? ".tsx" : ".ts");
+
+  return tsFilePath;
+};
+
 /**
  * Process a batch of files, running transforms and renaming files
  */
@@ -127,10 +140,10 @@ export async function processBatchAsync(
                 path.normalize(options.target)
               );
 
-        const tsFilePath = targetFilePath
-          .replace(/(__[^_]+__\/)?(.*)_([^\.]+)\.(jsx?)$/, "$1$2.$3.$4")
-          .replace(/\.jsx?$/, state.hasJsx || options.forceTSX ? ".tsx" : ".ts")
-          .replace(/\.jsx?\.stories\./, ".stories.");
+        const tsFilePath = renameFilePath(
+          targetFilePath,
+          state.hasJsx || options.forceTSX
+        );
 
         if (isTestFile) {
           const fileName = path.basename(filePath);
