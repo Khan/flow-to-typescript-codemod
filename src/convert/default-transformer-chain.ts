@@ -10,6 +10,7 @@ import {
   typeAnnotationTransformRunner,
   removeFlowCommentTransformRunner,
   functionalComponentTransformerRunner,
+  filterBooleanTranforRunner,
 } from "./transform-runners";
 import { Transformer } from "./transformer";
 
@@ -25,7 +26,11 @@ export const defaultTransformerChain: readonly Transformer[] = [
   typeAnnotationTransformRunner,
   patternTransformRunner,
   jsxSpreadTransformRunner,
-  importTransformRunner,
   removeFlowCommentTransformRunner,
   functionalComponentTransformerRunner,
+  filterBooleanTranforRunner,
+
+  // This transform must go last since it looks at `state` which can
+  // be modified by any other transformer.
+  importTransformRunner,
 ];

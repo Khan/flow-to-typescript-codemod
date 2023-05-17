@@ -95,6 +95,7 @@ export async function processBatchAsync(
         const state: State = {
           hasJsx: false,
           usedUtils: false,
+          usedIsTruthy: false,
           config: {
             filePath,
             isTestFile,

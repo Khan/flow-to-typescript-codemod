@@ -12,6 +12,7 @@ import { transformTypeAnnotations } from "./type-annotations";
 import { removeFlowComments } from "./remove-flow-comments";
 import { annotateNoFlow } from "./annotate-no-flow";
 import { transformFunctionalComponents } from "./functional-components";
+import { transformFilterBoolean } from "./migrate/filter-boolean";
 
 const standardTransformRunnerFactory = (transformer: Transformer) => {
   return (transformerInput: TransformerInput) => {
@@ -66,3 +67,6 @@ export const functionalComponentTransformerRunner: Transformer = async (
 ) => {
   await transformFunctionalComponents(transformerInput);
 };
+
+export const filterBooleanTranforRunner: Transformer =
+  standardTransformRunnerFactory(transformFilterBoolean);

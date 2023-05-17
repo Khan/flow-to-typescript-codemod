@@ -123,6 +123,7 @@ const stateBuilder = (
   return {
     hasJsx: false,
     usedUtils: false,
+    usedIsTruthy: false,
     ...stateOverrides,
     config: {
       filePath,
