@@ -7,6 +7,10 @@ export type State = {
   // Set this flag if utility types were encountered, and an import should be added
   usedUtils: boolean;
 
+  // Set this flag if `isTruthy` predicate type needs to be imported from
+  // @khanacademy/wonder-stuff-core.
+  usedIsTruthy: boolean;
+
   // Config is used to store immutable configuration
   readonly config: {
     // The path of the current file that is being converted
