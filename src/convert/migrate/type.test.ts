@@ -17,11 +17,11 @@ describe("transform type annotations", () => {
     );
   });
 
-  it("declare function foo<T>(x: T, y: T): T", async () => {
-    const src = `declare function foo<T>(x: T, y: T): T`;
+  it("declare function foo<T: U = U>(x: T, y: T): T", async () => {
+    const src = `declare function foo<T: U = U>(x: T, y: T): T`;
 
     expect(await transform(src)).toMatchInlineSnapshot(
-      `"declare function foo<T>(x: T, y: T): T"`
+      `"declare function foo<T extends U = U>(x: T, y: T): T"`
     );
   });
 
