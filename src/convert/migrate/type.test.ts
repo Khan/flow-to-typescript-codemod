@@ -32,4 +32,28 @@ describe("transform type annotations", () => {
       `"function foo(x: number, y: string): boolean { return true; }"`
     );
   });
+
+  it("handles returning object literals from arrow functions", async () => {
+    const src = `export const ErrorBoundary4: unknown = fixture(
+      "with ErrorBoundary and custom handler (see console)",
+      ({log}) => ({
+          children: <BadComponent />,
+          onError: (error) => {
+              log("Handled an error.", error);
+          },
+      }),
+  );`;
+
+    expect(await transform(src)).toMatchInlineSnapshot(`
+      "export const ErrorBoundary4: unknown = fixture(
+            \\"with ErrorBoundary and custom handler (see console)\\",
+            ({log}) => ({
+                children: <BadComponent />,
+                onError: (error) => {
+                    log(\\"Handled an error.\\", error);
+                },
+            }),
+        );"
+    `);
+  });
 });
