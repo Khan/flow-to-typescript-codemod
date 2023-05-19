@@ -8,4 +8,28 @@ describe("transform type annotations", () => {
       `"type Values = typeof T[keyof typeof T];"`
     );
   });
+
+  it("declare function foo(x: number, y: string): boolean", async () => {
+    const src = `declare function foo(x: number, y: string): boolean`;
+
+    expect(await transform(src)).toMatchInlineSnapshot(
+      `"declare function foo(x: number, y: string): boolean"`
+    );
+  });
+
+  it("declare function foo<T>(x: T, y: T): T", async () => {
+    const src = `declare function foo<T>(x: T, y: T): T`;
+
+    expect(await transform(src)).toMatchInlineSnapshot(
+      `"declare function foo<T>(x: T, y: T): T"`
+    );
+  });
+
+  it("function foo(x: number, y: string): boolean { return true; }", async () => {
+    const src = `function foo(x: number, y: string): boolean { return true; }`;
+
+    expect(await transform(src)).toMatchInlineSnapshot(
+      `"function foo(x: number, y: string): boolean { return true; }"`
+    );
+  });
 });

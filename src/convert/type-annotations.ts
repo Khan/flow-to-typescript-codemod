@@ -17,6 +17,13 @@ export function transformTypeAnnotations({
 }: TransformerInput) {
   traverse(file, {
     TypeAnnotation(path) {
+      if (
+        path.parent.type === "Identifier" &&
+        path.parentPath.parent.type === "DeclareFunction"
+      ) {
+        return;
+      }
+
       const metaData: MetaData = { path };
       // Flow automatically makes function parameters that accept `void` not required.
       // However, TypeScript requires a parameter even if it is marked as void. So make all
@@ -82,6 +89,58 @@ export function transformTypeAnnotations({
 
     ImportSpecifier(path) {
       maybeMigrateImportSpecifier(reporter, state, path);
+    },
+
+    DeclareFunction(path) {
+      const { typeAnnotation } = path.node.id;
+
+      if (typeAnnotation?.type !== "TypeAnnotation") {
+        return;
+      }
+
+      const functionTypeAnnotation = typeAnnotation.typeAnnotation;
+
+      if (functionTypeAnnotation.type !== "FunctionTypeAnnotation") {
+        return;
+      }
+
+      const typeParameters = functionTypeAnnotation.typeParameters
+        ? t.tsTypeParameterDeclaration(
+            functionTypeAnnotation.typeParameters.params.map((param) => {
+              const bound = param.bound
+                ? migrateType(reporter, state, param.bound.typeAnnotation)
+                : null;
+              const _default = param.default
+                ? migrateType(reporter, state, param.default)
+                : null;
+              return t.tsTypeParameter(bound, _default, param.name);
+            })
+          )
+        : null;
+
+      const params = functionTypeAnnotation.params.map((param) => {
+        // Flow allows anonymous params, but TS does not.
+        const result = t.identifier(param.name?.name ?? "_");
+        result.typeAnnotation = t.tsTypeAnnotation(
+          migrateType(reporter, state, param.typeAnnotation)
+        );
+        return result;
+      });
+      const returnType = migrateType(
+        reporter,
+        state,
+        functionTypeAnnotation.returnType
+      );
+
+      const replacement = t.tsDeclareFunction(
+        t.identifier(path.node.id.name),
+        typeParameters,
+        params,
+        t.tsTypeAnnotation(returnType)
+      );
+      replacement.declare = true;
+
+      replaceWith(path, replacement, state.config.filePath, reporter);
     },
   });
 }
