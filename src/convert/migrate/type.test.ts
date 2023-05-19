@@ -36,7 +36,9 @@ describe("transform type annotations", () => {
   it("handles returning object literals from arrow functions (simple)", async () => {
     const src = `const foo = (x, y) => ({x, y})`;
 
-    expect(await transform(src)).toMatchInlineSnapshot();
+    expect(await transform(src)).toMatchInlineSnapshot(
+      `"const foo = (x, y) => ({x, y})"`
+    );
   });
 
   it("handles returning object literals from arrow functions (complex)", async () => {
