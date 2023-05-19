@@ -33,7 +33,13 @@ describe("transform type annotations", () => {
     );
   });
 
-  it("handles returning object literals from arrow functions", async () => {
+  it("handles returning object literals from arrow functions (simple)", async () => {
+    const src = `const foo = (x, y) => ({x, y})`;
+
+    expect(await transform(src)).toMatchInlineSnapshot();
+  });
+
+  it("handles returning object literals from arrow functions (complex)", async () => {
     const src = `export const ErrorBoundary4: unknown = fixture(
       "with ErrorBoundary and custom handler (see console)",
       ({log}) => ({
