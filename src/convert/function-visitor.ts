@@ -209,8 +209,6 @@ export const functionVisitor = <
       }
     }
 
-    path.node.extra; // ?
-
     // let us fix return types for functions that return objects
     if (
       (t.isObjectExpression(path.node.body) &&
