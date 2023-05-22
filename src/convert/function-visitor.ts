@@ -218,5 +218,14 @@ export const functionVisitor = <
       path.node.extra = { ...path.node.extra, parenthesized: false };
       path.node.body = t.parenthesizedExpression(path.node.body);
     }
+
+    // let us fix return types for functions that return objects
+    if (
+      t.isObjectExpression(path.node.body) &&
+      t.isExpression(path.node.body)
+    ) {
+      path.node.extra = { ...path.node.extra, parenthesized: false };
+      path.node.body = t.parenthesizedExpression(path.node.body);
+    }
   },
 });
