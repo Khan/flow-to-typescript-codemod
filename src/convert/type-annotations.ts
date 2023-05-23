@@ -94,9 +94,16 @@ export function transformTypeAnnotations({
 
     ImportDeclaration(path) {
       const { node } = path;
+      // NOTE: `tokens` contains all tokens in the file.
       // @ts-expect-error: SourceLocation doesn't include 'tokens' even though it's there
       const isTypeofImport = node.loc?.tokens.some((token) => {
-        return token.value === "typeof";
+        return (
+          // @ts-expect-error: SourceLocation doesn't include 'tokens' even though it's there
+          token.loc.start.line >= node.loc?.start.line &&
+          // @ts-expect-error: SourceLocation doesn't include 'tokens' even though it's there
+          token.loc.end.line <= node.loc?.end.line &&
+          token.value === "typeof"
+        );
       });
 
       if (isTypeofImport) {
@@ -129,12 +136,14 @@ export function transformTypeAnnotations({
           }
         });
 
-        replaceWithMultiple(
-          path,
-          replacements,
-          state.config.filePath,
-          reporter
-        );
+        if (replacements.length > 0) {
+          replaceWithMultiple(
+            path,
+            replacements,
+            state.config.filePath,
+            reporter
+          );
+        }
       }
     },
 

@@ -63,6 +63,18 @@ describe("transform declarations", () => {
       });
     });
 
+    it("doesn't process imports if 'typeof' appears outside of the import", async () => {
+      const src = `import {foo, bar} from "./foo";
+      type Foo = typeof foo;
+      `;
+
+      expect(await transform(src)).toMatchInlineSnapshot(`
+        "import {foo, bar} from \\"./foo\\";
+        type Foo = typeof foo;
+              "
+      `);
+    });
+
     it("transforms named type imports", async () => {
       const src = `import {type Foo} from './foo';`;
       const expected = `import {Foo} from './foo';`;
