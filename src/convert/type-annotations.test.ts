@@ -471,7 +471,7 @@ describe("transform type annotations", () => {
 
   it("Converts React.Node to React.ReactElement in normal function", async () => {
     const src = `function Component(props: Props): React.Node {return <div />};`;
-    const expected = `const Component = function(props: Props): React.ReactElement {return <div />};`;
+    const expected = `function Component(props: Props): React.ReactElement {return <div />};`;
     expect(await transform(src)).toBe(expected);
   });
 
@@ -480,7 +480,7 @@ describe("transform type annotations", () => {
       if (foo) return (<div />);
       return null;
     };`;
-    const expected = dedent`const Component = function(props: Props): React.ReactElement {
+    const expected = dedent`function Component(props: Props): React.ReactElement {
       if (foo) return (<div />);
       return null;
     };`;
