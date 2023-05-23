@@ -28,15 +28,39 @@ describe("transform declarations", () => {
       expect(await transform(src)).toBe(expected);
     });
 
-    it("transforms typeof imports", async () => {
-      const src = `import typeof {foo} from './foo';`;
-      const expected = `import {foo} from './foo';`;
-      expect(await transform(src)).toBe(expected);
-    });
-    it("transforms default typeof imports", async () => {
-      const src = `import typeof Foo from './foo';`;
-      const expected = `import Foo from './foo';`;
-      expect(await transform(src)).toBe(expected);
+    describe("import typeof", () => {
+      it("import typeof Foo from './foo'", async () => {
+        const src = `import typeof Foo from './foo'`;
+
+        expect(await transform(src)).toMatchInlineSnapshot(
+          `"type Foo = typeof import('./foo');"`
+        );
+      });
+
+      it("named import", async () => {
+        const src = `import typeof {Foo} from './foo'`;
+
+        expect(await transform(src)).toMatchInlineSnapshot(
+          `"type Foo = typeof import('./foo').Foo;"`
+        );
+      });
+
+      it("renamed import", async () => {
+        const src = `import typeof {Foo as Bar} from './foo'`;
+
+        expect(await transform(src)).toMatchInlineSnapshot(
+          `"type Bar = typeof import('./foo').Foo;"`
+        );
+      });
+
+      it("multiple named imports", async () => {
+        const src = `import typeof {Foo as Bar, Baz} from './foo'`;
+
+        expect(await transform(src)).toMatchInlineSnapshot(`
+          "type Bar = typeof import('./foo').Foo;
+          type Baz = typeof import('./foo').Baz;"
+        `);
+      });
     });
 
     it("transforms named type imports", async () => {
