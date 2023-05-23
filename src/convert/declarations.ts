@@ -308,13 +308,7 @@ export function transformDeclarations({
           path.node.init.elements.length === 0 &&
           !path.node.id.typeAnnotation
         ) {
-          if (state.config.disableFlow) {
-            // If flow is disabled, then we don't know, so mark it as unknown.
-            (path.node.id as t.Identifier).typeAnnotation = t.tsTypeAnnotation(
-              t.tsUnknownKeyword()
-            );
-            reporter.disableFlowCheck(state.config.filePath, path.node.id.loc!);
-          } else {
+          if (!state.config.disableFlow) {
             // Ask Flow for the type of our array.
             awaitPromises.push(
               flowTypeAtPos(state, path.node.id.loc!, reporter)

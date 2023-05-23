@@ -825,7 +825,7 @@ describe("transform declarations", () => {
       const arr = []
       `;
       const expected = dedent`
-      const arr: unknown = [];
+      const arr = [];
       `;
 
       expect(
