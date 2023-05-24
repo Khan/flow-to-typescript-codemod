@@ -6,7 +6,10 @@ import { recastOptions } from "../../runner/process-batch";
 import { runTransforms } from "../../runner/run-transforms";
 import MigrationReporter from "../../runner/migration-reporter";
 import { defaultTransformerChain } from "../default-transformer-chain";
-import { watermarkTransformRunner } from "../transform-runners";
+import {
+  importJestGlobalsTransformRunner,
+  watermarkTransformRunner,
+} from "../transform-runners";
 import { Transformer } from "../transformer";
 import { State } from "../../runner/state";
 import { ConfigurableTypeProvider } from "./configurable-type-provider";
@@ -26,7 +29,12 @@ const MockedMigrationReporter =
 const transform = async (code: string, state?: State) => {
   state = state ?? stateBuilder();
 
-  const transforms = defaultTransformerChain;
+  const transforms = [...defaultTransformerChain];
+
+  if (state.config.filePath.includes("_test.")) {
+    transforms.push(importJestGlobalsTransformRunner);
+  }
+
   return transformRunner(code, state, transforms);
 };
 
