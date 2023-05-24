@@ -2,11 +2,8 @@ import * as t from "@babel/types";
 import traverse from "@babel/traverse";
 
 import { TransformerInput } from "./transformer";
-import { replaceWith, replaceWithMultiple } from "./utils/common";
 
 export function transformFunctionalComponents({
-  reporter,
-  state: globalState,
   file,
 }: TransformerInput): Promise<unknown> {
   const awaitPromises: Array<Promise<unknown>> = [];
@@ -70,8 +67,23 @@ export function transformFunctionalComponents({
             path.node.init.containsJsx
           ) {
             const { id, init: arrowFn } = path.node;
-            const { params } = arrowFn;
-            if (params.length === 1) {
+            const { params, returnType } = arrowFn;
+
+            if (params.length === 0 && returnType) {
+              if (
+                t.isIdentifier(id) &&
+                t.isTSTypeAnnotation(returnType) &&
+                t.isTSTypeReference(returnType.typeAnnotation) &&
+                t.isTSQualifiedName(returnType.typeAnnotation.typeName) &&
+                t.isIdentifier(returnType.typeAnnotation.typeName.left, {
+                  name: "React",
+                }) &&
+                t.isIdentifier(returnType.typeAnnotation.typeName.right) &&
+                returnType.typeAnnotation.typeName.right.name === "ReactNode"
+              ) {
+                arrowFn.returnType = createReturnType();
+              }
+            } else if (params.length === 1) {
               const [param] = params;
 
               if (
@@ -100,9 +112,8 @@ export function transformFunctionalComponents({
                   t.isIdentifier(
                     arrowFn.returnType.typeAnnotation.typeName.right
                   ) &&
-                  ["ReactNode", "ReactElement"].includes(
-                    arrowFn.returnType.typeAnnotation.typeName.right.name
-                  ))
+                  arrowFn.returnType.typeAnnotation.typeName.right.name ===
+                    "ReactNode")
               ) {
                 // We always include a return type so that the output code conforms to
                 // https://khanacademy.atlassian.net/wiki/spaces/ENG/pages/2201682700/TypeScript+Best+Practices#Functions-should-have-return-types
@@ -118,16 +129,31 @@ export function transformFunctionalComponents({
         },
         exit(path, state) {
           if (!t.isExportDefaultDeclaration(path.parent)) {
-            const { id, params, returnType, body } = path.node;
-            if (params.length === 1) {
-              const [param] = params;
+            const { id, params, returnType } = path.node;
 
+            if (
+              state.scopes.length > 0 &&
+              !state.scopes[state.scopes.length - 1].jsx
+            ) {
+              return;
+            }
+
+            if (params.length === 0) {
               if (
-                state.scopes.length > 0 &&
-                !state.scopes[state.scopes.length - 1].jsx
+                t.isIdentifier(id) &&
+                t.isTSTypeAnnotation(returnType) &&
+                t.isTSTypeReference(returnType.typeAnnotation) &&
+                t.isTSQualifiedName(returnType.typeAnnotation.typeName) &&
+                t.isIdentifier(returnType.typeAnnotation.typeName.left, {
+                  name: "React",
+                }) &&
+                t.isIdentifier(returnType.typeAnnotation.typeName.right) &&
+                returnType.typeAnnotation.typeName.right.name === "ReactNode"
               ) {
-                return;
+                path.node.returnType = createReturnType();
               }
+            } else if (params.length === 1) {
+              const [param] = params;
 
               if (
                 (t.isIdentifier(id) &&
@@ -148,24 +174,11 @@ export function transformFunctionalComponents({
                     name: "React",
                   }) &&
                   t.isIdentifier(returnType.typeAnnotation.typeName.right) &&
-                  ["ReactNode", "ReactElement"].includes(
-                    returnType.typeAnnotation.typeName.right.name
-                  ))
+                  returnType.typeAnnotation.typeName.right.name === "ReactNode")
               ) {
-                const fn = t.functionExpression(null, params, body);
-
                 // We always include a return type so that the output code conforms to
                 // https://khanacademy.atlassian.net/wiki/spaces/ENG/pages/2201682700/TypeScript+Best+Practices#Functions-should-have-return-types
-                fn.returnType = createReturnType();
-
-                replaceWith(
-                  path,
-                  t.variableDeclaration("const", [
-                    t.variableDeclarator(id, fn),
-                  ]),
-                  globalState.config.filePath,
-                  reporter
-                );
+                path.node.returnType = createReturnType();
               }
             }
           }
@@ -177,7 +190,7 @@ export function transformFunctionalComponents({
         exit(path) {
           const { node } = path;
           if (t.isFunctionDeclaration(node.declaration)) {
-            const { id, params, returnType, body } = node.declaration;
+            const { id, params, returnType } = node.declaration;
             if (params.length === 1) {
               const [param] = params;
 
@@ -200,29 +213,9 @@ export function transformFunctionalComponents({
                     name: "React",
                   }) &&
                   t.isIdentifier(returnType.typeAnnotation.typeName.right) &&
-                  ["ReactNode", "ReactElement"].includes(
-                    returnType.typeAnnotation.typeName.right.name
-                  ))
+                  returnType.typeAnnotation.typeName.right.name === "ReactNode")
               ) {
-                const fn = t.functionExpression(null, params, body);
-
-                // We always include a return type so that the output code conforms to
-                // https://khanacademy.atlassian.net/wiki/spaces/ENG/pages/2201682700/TypeScript+Best+Practices#Functions-should-have-return-types
-                fn.returnType = createReturnType();
-
-                const newNodes = [
-                  t.variableDeclaration("const", [
-                    t.variableDeclarator(id, fn),
-                  ]),
-                  t.exportDefaultDeclaration(t.identifier(id.name)),
-                ];
-
-                replaceWithMultiple(
-                  path,
-                  newNodes,
-                  globalState.config.filePath,
-                  reporter
-                );
+                node.declaration.returnType = createReturnType();
               }
             }
           }
