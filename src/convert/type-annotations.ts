@@ -128,7 +128,7 @@ export function transformTypeAnnotations({
               t.tsTypeAliasDeclaration(
                 local,
                 undefined,
-                t.tsTypeQuery(t.tsImportType(source))
+                t.tsTypeQuery(t.tsImportType(source, t.identifier("default")))
               ),
             ];
           } else {

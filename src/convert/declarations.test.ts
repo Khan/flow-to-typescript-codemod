@@ -33,7 +33,7 @@ describe("transform declarations", () => {
         const src = `import typeof Foo from './foo'`;
 
         expect(await transform(src)).toMatchInlineSnapshot(
-          `"type Foo = typeof import('./foo');"`
+          `"type Foo = typeof import('./foo').default;"`
         );
       });
 
