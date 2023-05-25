@@ -21,7 +21,7 @@ describe("transform declarations", () => {
     jest.clearAllMocks();
   });
 
-  describe.only("import declarations", () => {
+  describe("import declarations", () => {
     it("does not transforms type imports", async () => {
       const src = `import type {foo} from './foo';`;
       const expected = `import type {foo} from './foo';`;
