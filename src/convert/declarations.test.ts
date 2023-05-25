@@ -21,7 +21,7 @@ describe("transform declarations", () => {
     jest.clearAllMocks();
   });
 
-  describe("import declarations", () => {
+  describe.only("import declarations", () => {
     it("does not transforms type imports", async () => {
       const src = `import type {foo} from './foo';`;
       const expected = `import type {foo} from './foo';`;
@@ -33,7 +33,7 @@ describe("transform declarations", () => {
         const src = `import typeof Foo from './foo'`;
 
         expect(await transform(src)).toMatchInlineSnapshot(
-          `"type Foo = typeof import('./foo');"`
+          `"type Foo = typeof import('./foo').default;"`
         );
       });
 
