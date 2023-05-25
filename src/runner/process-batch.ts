@@ -11,6 +11,7 @@ import { defaultTransformerChain } from "../convert/default-transformer-chain";
 import {
   annotateNoFlowTransformRunner,
   watermarkTransformRunner,
+  importJestGlobalsTransformRunner,
 } from "../convert/transform-runners";
 import { State } from "./state";
 import { ConfigurableTypeProvider } from "../convert/utils/configurable-type-provider";
@@ -123,6 +124,10 @@ export async function processBatchAsync(
           options.convertUnannotated
         ) {
           transforms.push(annotateNoFlowTransformRunner);
+        }
+
+        if (filePath.includes("_test.")) {
+          transforms.push(importJestGlobalsTransformRunner);
         }
 
         await runTransforms(reporter, state, file, transforms);
