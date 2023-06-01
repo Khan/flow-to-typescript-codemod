@@ -161,7 +161,7 @@ export function findFlowFilesAsync(
           }
           // If the buffer has the @flow pragma then add the file path to our
           // final file paths array.
-          if (buffer.includes("@flow")) {
+          if (buffer.includes("@flow") || filePath.includes("flow-typed")) {
             filePaths.push({ filePath, fileType: FlowFileType.FLOW });
           } else if (buffer.includes("@noflow")) {
             filePaths.push({ filePath, fileType: FlowFileType.NO_FLOW });

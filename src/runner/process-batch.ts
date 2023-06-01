@@ -85,6 +85,11 @@ export async function processBatchAsync(
           return;
         }
 
+        // ignore files in flow-typed directory
+        if (filePath.includes("flow-typed")) {
+          return;
+        }
+
         const fileBuffer = await fs.readFile(filePath);
 
         const fileText = fileBuffer.toString("utf8");
