@@ -143,6 +143,10 @@ export function findFlowFilesAsync(
       if (rejected === true) {
         return;
       }
+      // Skip third party files
+      if (filePath.includes("/third_party/")) {
+        return;
+      }
       // We are now waiting on this asynchronous task.
       waiting++;
       // Open the file path.
