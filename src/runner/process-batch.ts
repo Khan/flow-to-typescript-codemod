@@ -49,7 +49,8 @@ export async function processBatchAsync(
   options: ConvertCommandCliArgs
 ) {
   await Promise.all(
-    filePaths.map(async ({ filePath, fileType }) => {
+    filePaths.map(async (elem) => {
+      const { filePath, fileType } = elem;
       try {
         if (
           (fileType === FlowFileType.NO_FLOW && options.skipNoFlow) ||
@@ -70,6 +71,18 @@ export async function processBatchAsync(
         // if there is one.
         if (fs.existsSync(filePath.replace(/\.jsx?$/, ".tsx"))) {
           reporter.foundDeclarationFile(filePath);
+          return;
+        }
+
+        // Checks if a .d.ts override file exists and stops early
+        // if there is one.
+        if (fs.existsSync(filePath.replace(/\.jsx?$/, ".d.ts"))) {
+          reporter.foundDeclarationFile(filePath);
+          // .d.ts files can live side-by-side with .js(x) files, providing
+          // types for the .ts(x) files that import them so we need to
+          // keep the .js(x) file around since that's what contains the
+          // implementation.
+          elem.skipDelete = true;
           return;
         }
 

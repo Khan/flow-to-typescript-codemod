@@ -21,7 +21,11 @@ export enum FlowFileType {
   NO_ANNOTATION,
 }
 
-export type FlowFileList = Array<{ filePath: string; fileType: FlowFileType }>;
+export type FlowFileList = Array<{
+  filePath: string;
+  fileType: FlowFileType;
+  skipDelete?: boolean;
+}>;
 
 /**
  * Finds all of the Flow files in the provided directory as efficiently as

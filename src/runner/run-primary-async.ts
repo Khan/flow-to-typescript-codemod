@@ -201,7 +201,9 @@ export async function runPrimaryAsync(options: ConvertCommandCliArgs) {
           (flowFilePath.fileType === FlowFileType.NO_FLOW &&
             options.skipNoFlow) ||
           (flowFilePath.fileType === FlowFileType.NO_ANNOTATION &&
-            !options.convertUnannotated);
+            !options.convertUnannotated) ||
+          // set when processing .js files that have a corresponding .d.ts files
+          !!flowFilePath.skipDelete;
 
         if (!wasSkipped) {
           toRemoveCalls.push(fs.remove(flowFilePath.filePath));
