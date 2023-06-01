@@ -76,13 +76,12 @@ export async function processBatchAsync(
 
         // Checks if a .d.ts override file exists and stops early
         // if there is one.
+        // .d.ts files can live side-by-side with .js(x) files, providing
+        // types for the .ts(x) files that import them so we need to
+        // keep the .js(x) file around since that's what contains the
+        // implementation.
         if (fs.existsSync(filePath.replace(/\.jsx?$/, ".d.ts"))) {
           reporter.foundDeclarationFile(filePath);
-          // .d.ts files can live side-by-side with .js(x) files, providing
-          // types for the .ts(x) files that import them so we need to
-          // keep the .js(x) file around since that's what contains the
-          // implementation.
-          elem.skipDelete = true;
           return;
         }
 
