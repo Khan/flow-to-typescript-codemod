@@ -17,7 +17,7 @@ describe("transform type annotations", () => {
 
   it("converts React$Element", async () => {
     const src = `const Component = (props: Props): React$Element => {return <div />};`;
-    const expected = `const Component = (props: Props): React.ReactElement => {return <div />};`;
+    const expected = `const Component = (props: Props): React.Element => {return <div />};`;
     expect(await transform(src)).toBe(expected);
   });
 
@@ -29,8 +29,9 @@ describe("transform type annotations", () => {
 
   it("converts Flow namespaces", async () => {
     const src = `const Component = (props: Props): Any$Thing => {return <div />};`;
-    const expected = `const Component = (props: Props): React.ReactElement => {return <div />};`;
-    expect(await transform(src)).toBe(expected);
+    expect(await transform(src)).toMatchInlineSnapshot(
+      `"const Component = (props: Props): Any.Thing => {return <div />};"`
+    );
   });
 
   it("does not convert Flow namespace when keepPrivateTypes is set", async () => {
@@ -40,7 +41,7 @@ describe("transform type annotations", () => {
       },
     });
     const src = `const Component = (props: Props): Any$Thing => {return <div />};`;
-    const expected = `const Component = (props: Props): React.ReactElement => {return <div />};`;
+    const expected = `const Component = (props: Props): Any$Thing => {return <div />};`;
     expect(await transform(src, state)).toBe(expected);
   });
 

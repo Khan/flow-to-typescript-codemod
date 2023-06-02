@@ -6,29 +6,29 @@ jest.mock("./flow/type-at-pos.ts");
 
 describe("Converting functional components", () => {
   describe("Arrow functions", () => {
-    it("adds return type annotation", async () => {
+    it("doesn't add return type annotation if there wasn't one to begin with", async () => {
       const src = `const Comp = (props: Props) => { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = (props: Props): React.ReactElement => { return <h1>Hello</h1> };"`
+        `"const Comp = (props: Props) => { return <h1>Hello</h1> };"`
       );
     });
 
     it("works with FooProps", async () => {
-      const src = `const Comp = (props: FooProps) => { return <h1>Hello</h1> };`;
+      const src = `const Comp = (props: FooProps): React.Node => { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
         `"const Comp = (props: FooProps): React.ReactElement => { return <h1>Hello</h1> };"`
       );
     });
 
     it("works on lambdas", async () => {
-      const src = `const Comp = (props: FooProps) => <h1>Hello</h1>;`;
+      const src = `const Comp = (props: FooProps): React.Node => <h1>Hello</h1>;`;
       expect(await transform(src)).toMatchInlineSnapshot(
         `"const Comp = (props: FooProps): React.ReactElement => <h1>Hello</h1>;"`
       );
     });
 
     it("works with destructured props", async () => {
-      const src = `const Comp = ({foo, bar}: Props) => { return <h1>Hello</h1> };`;
+      const src = `const Comp = ({foo, bar}: Props): React.Node => { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(`
         "const Comp = (
           {
@@ -69,26 +69,24 @@ describe("Converting functional components", () => {
     it("adds return type annotation", async () => {
       const src = `const Comp = function (props: Props) { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = function(props: Props): React.ReactElement { return <h1>Hello</h1> };"`
+        `"const Comp = function (props: Props) { return <h1>Hello</h1> };"`
       );
     });
 
     it("works with FooProps", async () => {
       const src = `const Comp = function (props: FooProps) { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
-        `"const Comp = function(props: FooProps): React.ReactElement { return <h1>Hello</h1> };"`
+        `"const Comp = function (props: FooProps) { return <h1>Hello</h1> };"`
       );
     });
 
     it("works with destructured props", async () => {
       const src = `const Comp = function ({foo, bar}: Props) { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(`
-        "const Comp = function(
-          {
-            foo,
-            bar,
-          }: Props,
-        ): React.ReactElement { return <h1>Hello</h1> };"
+        "const Comp = function ({
+          foo,
+          bar,
+        }: Props) { return <h1>Hello</h1> };"
       `);
     });
 
@@ -112,7 +110,7 @@ describe("Converting functional components", () => {
       }`;
       expect(await transform(src)).toMatchInlineSnapshot(`
         "const OuterComp = function(props: OuterProps): React.ReactElement {
-          const InnnerComp = function(props: InnerProps): React.ReactElement { return <h1>Hello</h1>; };
+          const InnnerComp = function (props: InnerProps) { return <h1>Hello</h1>; };
           return <InnerComp />;
         }"
       `);
@@ -121,21 +119,21 @@ describe("Converting functional components", () => {
 
   describe("Function declarations", () => {
     it("converts it to an function expression", async () => {
-      const src = `function Comp(props: Props) { return <h1>Hello</h1> };`;
+      const src = `function Comp(props: Props): React.Node { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
         `"function Comp(props: Props): React.ReactElement { return <h1>Hello</h1> };"`
       );
     });
 
     it("works with FooProps", async () => {
-      const src = `function Comp(props: FooProps) { return <h1>Hello</h1> };`;
+      const src = `function Comp(props: FooProps): React.Node { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
         `"function Comp(props: FooProps): React.ReactElement { return <h1>Hello</h1> };"`
       );
     });
 
     it("works with destructured props", async () => {
-      const src = `function Comp({foo, bar}: Props) { return <h1>Hello</h1> };`;
+      const src = `function Comp({foo, bar}: Props): React.Node { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(`
         "function Comp(
           {
@@ -165,7 +163,7 @@ describe("Converting functional components", () => {
       }`;
       expect(await transform(src)).toMatchInlineSnapshot(`
         "function OuterComp(props: OuterProps): React.ReactElement {
-          function InnnerComp(props: InnerProps): React.ReactElement { return <h1>Hello</h1>; };
+          function InnnerComp(props: InnerProps) { return <h1>Hello</h1>; };
           return <InnerComp />;
         }"
       `);
@@ -174,14 +172,14 @@ describe("Converting functional components", () => {
 
   describe("Exporting function", () => {
     it("handles named exports", async () => {
-      const src = `export function Comp(props: Props) { return <h1>Hello</h1> };`;
+      const src = `export function Comp(props: Props): React.Node { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
         `"export function Comp(props: Props): React.ReactElement { return <h1>Hello</h1> };"`
       );
     });
 
     it("handles default exports with props param", async () => {
-      const src = `export default function Comp(props: Props) { return <h1>Hello</h1> };`;
+      const src = `export default function Comp(props: Props): React.Node { return <h1>Hello</h1> };`;
       expect(await transform(src)).toMatchInlineSnapshot(
         `"export default function Comp(props: Props): React.ReactElement { return <h1>Hello</h1> };"`
       );
@@ -248,6 +246,32 @@ describe("Converting functional components", () => {
                   </div>
                 );
               }"
+      `);
+    });
+  });
+
+  describe("edge cases", () => {
+    it("contains no JSX", async () => {
+      const src = `export default (props: Props): React.ReactNode => { return null; };`;
+
+      expect(await transform(src)).toMatchInlineSnapshot(
+        `"export default (props: Props): React.ReactElement | null => { return null; };"`
+      );
+    });
+
+    it("ApolloQuery", async () => {
+      const src = `export default function <TData: {...}, TVariables: {...}>(
+        props: WithoutApollo<Props<TData, TVariables>>,
+    ): React.Node {
+        return <ApolloQueryWithContext {...props} />;
+    }
+    `;
+
+      expect(await transform(src)).toMatchInlineSnapshot(`
+        "export default function<TData extends Record<any, any>, TVariables extends Record<any, any>>(props: WithoutApollo<Props<TData, TVariables>>): React.ReactElement {
+                return <ApolloQueryWithContext {...props} />;
+            }
+            "
       `);
     });
   });
