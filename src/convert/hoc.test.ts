@@ -117,14 +117,12 @@ describe("transform HOC patterns", () => {
         qux: string
       };
 
-      const InternalComponent = (
-        {
-          foo,
-          bar,
-          baz,
-          qux = \\"hello\\",
-        }: Props,
-      ): React.ReactElement => {
+      const InternalComponent = ({
+        foo,
+        bar,
+        baz,
+        qux = \\"hello\\",
+      }: Props) => {
         return (
           <div>
             foo: {foo}

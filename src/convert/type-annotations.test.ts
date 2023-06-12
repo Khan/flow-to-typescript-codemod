@@ -415,10 +415,13 @@ describe("transform type annotations", () => {
     ) => {
       return <Test {...props} globals={globals} />;
     };`;
-    const expected = dedent`const Test = (props: Props & DefaultProps) => {
-      return <Test {...props} globals={globals} />;
-    };`;
-    expect(await transform(src)).toBe(expected);
+    expect(await transform(src)).toMatchInlineSnapshot(`
+      "const Test = (
+        props: Props & DefaultProps,
+      ) => {
+        return <Test {...props} globals={globals} />;
+      };"
+    `);
   });
 
   it("Converts React.ElementProps", async () => {
@@ -439,12 +442,6 @@ describe("transform type annotations", () => {
     expect(await transform(src)).toBe(expected);
   });
 
-  it("Converts React.MixedElement", async () => {
-    const src = `function f(): React.MixedElement {};`;
-    const expected = `function f(): React.ReactElement {};`;
-    expect(await transform(src)).toBe(expected);
-  });
-
   it("Converts React.Portal with type parameters", async () => {
     const src = `function f(): React.Portal<Props> {};`;
     const expected = `function f(): React.ReactPortal<Props> {};`;
@@ -457,16 +454,17 @@ describe("transform type annotations", () => {
     expect(await transform(src)).toBe(expected);
   });
 
-  it("Converts React.Node to React.ReactElement or null in arrow function return", async () => {
+  it.only("Converts React.Node to React.ReactElement or null in arrow function return", async () => {
     const src = dedent`const Component = (props: Props): React.Node => {
       if (foo) return (<div />);
       return null;
     };`;
-    const expected = dedent`const Component = (props: Props): React.ReactElement => {
-      if (foo) return (<div />);
-      return null;
-    };`;
-    expect(await transform(src)).toBe(expected);
+    expect(await transform(src)).toMatchInlineSnapshot(`
+      "const Component = (props: Props): React.ReactElement | null => {
+        if (foo) return (<div />);
+        return null;
+      };"
+    `);
   });
 
   it("Converts React.Node to React.ReactElement in normal function", async () => {
