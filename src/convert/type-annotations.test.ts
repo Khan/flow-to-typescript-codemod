@@ -454,7 +454,7 @@ describe("transform type annotations", () => {
     expect(await transform(src)).toBe(expected);
   });
 
-  it.only("Converts React.Node to React.ReactElement or null in arrow function return", async () => {
+  it("Converts React.Node to React.ReactElement or null in arrow function return", async () => {
     const src = dedent`const Component = (props: Props): React.Node => {
       if (foo) return (<div />);
       return null;
@@ -478,7 +478,7 @@ describe("transform type annotations", () => {
       if (foo) return (<div />);
       return null;
     };`;
-    const expected = dedent`function Component(props: Props): React.ReactElement {
+    const expected = dedent`function Component(props: Props): React.ReactElement | null {
       if (foo) return (<div />);
       return null;
     };`;
@@ -904,6 +904,20 @@ class C {
     it("converts $Partial<T> to Partial<T>", async () => {
       const src = `type PartialFoo = $Partial<Foo>;`;
       const expected = `type PartialFoo = Partial<Foo>;`;
+      expect(await transform(src)).toBe(expected);
+    });
+  });
+
+  describe("readonly types", () => {
+    it.each`
+      input                   | output
+      ${"$ReadOnly<T>"}       | ${"Readonly<T>"}
+      ${"$ReadOnlyArray<T>"}  | ${"ReadonlyArray<T>"}
+      ${"$ReadOnlyMap<K, V>"} | ${"ReadonlyMap<K, V>"}
+      ${"$ReadOnlySet<T>"}    | ${"ReadonlySet<T>"}
+    `("converts $input to $output", async ({ input, output }) => {
+      const src = `type Foo = ${input};`;
+      const expected = `type Foo = ${output};`;
       expect(await transform(src)).toBe(expected);
     });
   });
