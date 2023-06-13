@@ -145,6 +145,26 @@ function actuallyMigrateType(
         return t.tsTypeReference(t.identifier("ReadonlyArray"), params);
       }
 
+      // `$ReadOnlySet<T>` → `ReadonlySet<T>`
+      if (
+        id.type === "Identifier" &&
+        id.name === "$ReadOnlySet" &&
+        params &&
+        params.params.length === 1
+      ) {
+        return t.tsTypeReference(t.identifier("ReadonlySet"), params);
+      }
+
+      // `$ReadOnlyMap<K, V>` → `ReadonlyMap<K, V>`
+      if (
+        id.type === "Identifier" &&
+        id.name === "$ReadOnlyMap" &&
+        params &&
+        params.params.length === 2
+      ) {
+        return t.tsTypeReference(t.identifier("ReadonlyMap"), params);
+      }
+
       // `$ReadOnly<T>` → `Readonly<T>`
       if (
         id.type === "Identifier" &&
