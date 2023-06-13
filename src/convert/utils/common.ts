@@ -28,23 +28,29 @@ export function hasJSX({ file }: TransformerInput): boolean {
  * Helpful when typing React functional components
  */
 export function hasNullReturn(
-  body: t.BlockStatement,
+  body: t.BlockStatement | t.Expression,
   scope: Scope | undefined,
   parentPath: NodePath<t.Node> | null | undefined
 ): boolean {
   let found = false;
-  traverse(
-    body,
-    {
-      ReturnStatement(path) {
-        if (path.node.argument?.type === "NullLiteral") {
-          found = true;
-        }
+  if (t.isBlockStatement(body)) {
+    traverse(
+      body,
+      {
+        ReturnStatement(path) {
+          if (path.node.argument?.type === "NullLiteral") {
+            found = true;
+          }
+        },
       },
-    },
-    scope,
-    parentPath
-  );
+      scope,
+      parentPath
+    );
+  } else {
+    if (body.type === "NullLiteral") {
+      found = true;
+    }
+  }
 
   return found;
 }

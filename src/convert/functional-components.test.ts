@@ -251,11 +251,19 @@ describe("Converting functional components", () => {
   });
 
   describe("edge cases", () => {
-    it("contains no JSX", async () => {
+    it("returns null", async () => {
       const src = `export default (props: Props): React.ReactNode => { return null; };`;
 
       expect(await transform(src)).toMatchInlineSnapshot(
         `"export default (props: Props): React.ReactElement | null => { return null; };"`
+      );
+    });
+
+    it("returning null as an expression", async () => {
+      const src = `export default (props: Props): React.ReactNode => null;`;
+
+      expect(await transform(src)).toMatchInlineSnapshot(
+        `"export default (props: Props): React.ReactElement | null => null;"`
       );
     });
 
