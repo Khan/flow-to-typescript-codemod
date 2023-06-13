@@ -4,7 +4,6 @@ import {
   inheritLocAndComments,
   GlobalTypes,
   LiteralTypes,
-  hasNullReturn,
 } from "../utils/common";
 import {
   migrateTypeParameterDeclaration,
@@ -514,79 +513,6 @@ function actuallyMigrateType(
           ? t.tsTypeReference(t.identifier(id.right.name))
           : t.tsAnyKeyword();
       }
-
-      // `React.Node` → `React.ReactElement`
-      // `React.MixedElement` -> React.ReactElement
-      // This is a complicated conversion, because of the limitations of functional component returns in TS
-      // https://www.typescriptlang.org/play?#code/JYWwDg9gTgLgBAJQKYEMDG8BmUIjgcilQ3wG4Aoc4AOxiSk3STgAUcwBnOAb3Ln7gcA-AC5BMKDQDmFAL6UkAD0iw4aCNQ7wAKki0BGOAF44ACgCUxgHw8+AojACuUanAA8AE2AA3K3S1uAPRevuTy5Eoq8OqaOnowAEzGZmDsHGJsEJyWRja8AnDAmClpAHQclvkF9khOLu4hVtypWRzlskGNdvzyBQ7OrtSOADbDYQrK0NEaWnC6WgDMyaYtnBlp5mLI6DCl2xgAchAezLm2BUUlreWV3dX99Z4+TattHB3Bz3e9NXWDI2NwpEpmoZnEtAAWZavdatTaIYi7fYwACiwyQICQtDgAB84ENRtZzgJLisyhVidU4A9XE9fM1yR8ugUfvwafiAXJKJQYrNMBAIMkAEIC9EoaimfTmCjkNDDFAcLjzGAAVjgSjo1A8XGRpQAwrhINQsfAqmysScoBYtoi9oi0RiTZTqqT+RBLOzTHS4IErNK7n1agMOaMKCy5DK5QqlfEAGzqxSa7UInb6w0aJ1m6kW+jWlMYO07B2Y7F4gnDZ0XYqmN0eoP1L0hH1+sNU7N-EPDVs9CM8sFwPUACyQaAA1sscnk7p6AwI3FZZ1S3MrDL7F9Vl-Ekmu2xvlUsd7u58qoYej+5lWqz0fN1p49eCkE-eNyEA
-      // When a function is returning React.Node in Flow, it can return a React Element, null, numbers, and strings
-      // In TS, if you say a function returns React.ReactNode, it cannot be used as a <JSXElement /> due to conflicts with the JSX types.
-      // The best return type appears to be React.ReactElement, and you have to declare null if it also returns null
-      // So we check if we're in a function / render function return, and check for a null return in the function, before annotating.
-      // let isRenderMethodOrNonClassMethodReturnType =
-      //   metaData?.returnType ?? false;
-
-      // if (metaData?.path && metaData.path.parentPath) {
-      //   const parent = metaData.path.parentPath;
-      //   if (
-      //     parent.node.type === "ClassMethod" &&
-      //     parent.node.key.type === "Identifier" &&
-      //     parent.node.key.name !== "render" &&
-      //     state.hasJsx
-      //   ) {
-      //     isRenderMethodOrNonClassMethodReturnType = false;
-      //   }
-
-      //   // Ignore function declarations as well
-      //   if (parent.node.type === "FunctionDeclaration") {
-      //     isRenderMethodOrNonClassMethodReturnType = false;
-      //   }
-      // }
-
-      // if (
-      //   ((matchesFullyQualifiedName("React", "Node")(id) ||
-      //     // We have a bunch of code where the `render()` methods' return type
-      //     // is set to `React.Element<"div">` or something like that.  This was
-      //     // the result of a codemod that inserted inferred types.  We'd like
-      //     // our code to be more consistent moving forward so if we find a `render()`
-      //     // method with a return type like this we convert it to `React.ReactNode`.
-      //     matchesFullyQualifiedName("React", "Element")(id)) &&
-      //     isRenderMethodOrNonClassMethodReturnType) ||
-      //   (matchesFullyQualifiedName("React", "MixedElement")(id) && !params)
-      // ) {
-      //   const parentNode = metaData?.path?.parentPath?.node;
-      //   let hasNull = false;
-      //   if (parentNode && "body" in parentNode) {
-      //     const parentPath = metaData?.path?.parentPath;
-      //     const scope = metaData?.path?.scope;
-      //     hasNull = hasNullReturn(
-      //       parentNode.body as t.BlockStatement,
-      //       scope,
-      //       parentPath
-      //     );
-      //   }
-      //   const reactElement = matchesFullyQualifiedName(
-      //     "React",
-      //     "MixedElement"
-      //   )(id)
-      //     ? t.tsTypeReference(
-      //         t.tsQualifiedName(
-      //           t.identifier("React"),
-      //           t.identifier("ReactElement")
-      //         )
-      //       )
-      //     : t.tsTypeReference(
-      //         t.tsQualifiedName(
-      //           t.identifier("React"),
-      //           t.identifier("ReactElement")
-      //         )
-      //       );
-      //   if (hasNull) {
-      //     return t.tsUnionType([reactElement, t.tsNullKeyword()]);
-      //   } else {
-      //     return reactElement;
-      //   }
-      // }
 
       // `React.ChildrenArray<T>` -> `Array<T> | T`
       // TypeScript is unable to do as strict of checks on React Children as flow. As a result we need to be able to

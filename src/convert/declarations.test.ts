@@ -131,6 +131,24 @@ describe("transform declarations", () => {
       expectMigrationReporterMethodCalled(`importWithExtension`);
     });
 
+    it("update '_testdata' and '_types' imports", async () => {
+      const src = [
+        `import type {Foo} from './foo_types.js';`,
+        `import {barData} from './bar_testdata.jsx';`,
+      ].join("\n");
+      expect(
+        await transform(
+          src,
+          stateBuilder({ config: { dropImportExtensions: true } })
+        )
+      ).toMatchInlineSnapshot(`
+        "import type {Foo} from './foo.types';
+        import {barData} from './bar.testdata';"
+      `);
+
+      expectMigrationReporterMethodCalled(`importWithExtension`);
+    });
+
     it("does not convert extensions similar to js imports when flag is present", async () => {
       const src = `import {foo} from './foo.json';`;
       expect(

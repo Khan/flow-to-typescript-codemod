@@ -95,6 +95,13 @@ export function transformDeclarations({
           } else if (isJSX) {
             path.node.source.value = value.slice(0, -4);
           }
+
+          // NOTE: This handles a subset of the renaming that we do in `renameFilePath`
+          // in process-batch.ts.
+          path.node.source.value = path.node.source.value.replace(
+            /_(testdata|types)$/,
+            ".$1"
+          );
         }
       }
 
