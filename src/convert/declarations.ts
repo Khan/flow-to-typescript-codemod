@@ -62,6 +62,51 @@ const updateReactImports = (
   }
 };
 
+function getUpdatedFilePath(
+  reporter: TransformerInput["reporter"],
+  state: TransformerInput["state"],
+  node: t.Node,
+  value: string
+): string {
+  const isJS = value.endsWith(".js");
+  const isJSX = value.endsWith(".jsx");
+
+  if (isJS || isJSX) {
+    reporter.importWithExtension(state.config.filePath, getLoc(node), value);
+  }
+
+  let retVal = value;
+
+  if (state.config.dropImportExtensions) {
+    if (isJS) {
+      retVal = value.slice(0, -3);
+    } else if (isJSX) {
+      retVal = value.slice(0, -4);
+    }
+  }
+
+  // NOTE: This handles a subset of the renaming that we do in `renameFilePath`
+  // in process-batch.ts.
+  return retVal.replace(/_(testdata|types)$/, ".$1");
+}
+
+function updateImportExportNode(
+  reporter: TransformerInput["reporter"],
+  state: TransformerInput["state"],
+  node: t.ImportDeclaration | t.ExportAllDeclaration | t.ExportNamedDeclaration
+) {
+  if (!node.source) {
+    return;
+  }
+
+  node.source.value = getUpdatedFilePath(
+    reporter,
+    state,
+    node,
+    node.source.value
+  );
+}
+
 export function transformDeclarations({
   reporter,
   state,
@@ -77,33 +122,7 @@ export function transformDeclarations({
       }
 
       // `import X from `foo.js` -> extension warning
-      if (path.node.source) {
-        const { value } = path.node.source;
-        const isJS = value.endsWith(".js");
-        const isJSX = value.endsWith(".jsx");
-        if (isJS || isJSX) {
-          reporter.importWithExtension(
-            state.config.filePath,
-            getLoc(path.node),
-            value
-          );
-        }
-
-        if (state.config.dropImportExtensions) {
-          if (isJS) {
-            path.node.source.value = value.slice(0, -3);
-          } else if (isJSX) {
-            path.node.source.value = value.slice(0, -4);
-          }
-
-          // NOTE: This handles a subset of the renaming that we do in `renameFilePath`
-          // in process-batch.ts.
-          path.node.source.value = path.node.source.value.replace(
-            /_(testdata|types)$/,
-            ".$1"
-          );
-        }
-      }
+      updateImportExportNode(reporter, state, path.node);
 
       // `import {...} from`
       if (path.node.specifiers) {
@@ -131,6 +150,31 @@ export function transformDeclarations({
 
     ExportAllDeclaration(path) {
       delete path.node.exportKind;
+
+      // `export * from `foo.js` -> extension warning
+      updateImportExportNode(reporter, state, path.node);
+    },
+
+    ExportNamedDeclaration(path) {
+      // `export {foo} from `foo.js` -> extension warning
+      updateImportExportNode(reporter, state, path.node);
+    },
+
+    CallExpression(path) {
+      const { node } = path;
+      if (node.callee.type === "Identifier" && node.callee.name === "require") {
+        if (
+          node.arguments.length === 1 &&
+          node.arguments[0].type === "StringLiteral"
+        ) {
+          node.arguments[0].value = getUpdatedFilePath(
+            reporter,
+            state,
+            node,
+            node.arguments[0].value
+          );
+        }
+      }
     },
 
     TypeAlias(path) {
