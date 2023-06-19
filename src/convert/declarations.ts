@@ -162,7 +162,10 @@ export function transformDeclarations({
 
     CallExpression(path) {
       const { node } = path;
-      if (node.callee.type === "Identifier" && node.callee.name === "require") {
+      if (
+        (node.callee.type === "Identifier" && node.callee.name === "require") ||
+        node.callee.type === "Import"
+      ) {
         if (
           node.arguments.length === 1 &&
           node.arguments[0].type === "StringLiteral"

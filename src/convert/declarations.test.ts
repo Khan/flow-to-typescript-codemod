@@ -107,16 +107,18 @@ describe("transform declarations", () => {
 
     it("drops js imports when flag is present", async () => {
       const src = [
-        `import {foo} from './foo.js';`,
-        `export {bar} from './bar.js';`,
-        `export * from './baz.js';`,
-        `const {qux} = require('./qux.js');`,
+        `import {a} from './a.js';`,
+        `export {b} from './b.js';`,
+        `export * from './c.js';`,
+        `const {d} = require('./d.js');`,
+        `const {e} = import('./e.js');`,
       ].join("\n");
       const expected = [
-        `import {foo} from './foo';`,
-        `export {bar} from './bar';`,
-        `export * from './baz';`,
-        `const {qux} = require('./qux');`,
+        `import {a} from './a';`,
+        `export {b} from './b';`,
+        `export * from './c';`,
+        `const {d} = require('./d');`,
+        `const {e} = import('./e');`,
       ].join("\n");
       expect(
         await transform(
