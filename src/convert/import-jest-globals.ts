@@ -28,7 +28,8 @@ export function importJestGlobals({ file }: TransformerInput) {
         const parent = path.parentPath.node;
         if (
           parent.type === "ImportDeclaration" &&
-          parent.source.value === "@jest/globals" &&
+          (parent.source.value === "@jest/globals" ||
+            parent.source.value.endsWith("/jest-globals")) &&
           node.imported.type === "Identifier" &&
           GLOBALS.includes(node.imported.name)
         ) {
