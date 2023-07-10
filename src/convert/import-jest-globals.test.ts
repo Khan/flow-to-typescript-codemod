@@ -38,7 +38,8 @@ describe("jest globals", () => {
   });
 
   it("should not re-import globals in _test.js files that have already been imported", async () => {
-    const src = `import {describe, expect} from "@jest/globals";
+    const src = `import {expect} from "@jest/globals";
+    import {describe} from "~/testing/jest-globals";
     describe("foo", () => { expect(true).toBe(true); });`;
 
     expect(
@@ -47,7 +48,8 @@ describe("jest globals", () => {
         stateBuilder({ config: { filePath: "foo_test.js" } })
       )
     ).toMatchInlineSnapshot(`
-      "import {describe, expect} from \\"@jest/globals\\";
+      "import {expect} from \\"@jest/globals\\";
+          import {describe} from \\"~/testing/jest-globals\\";
           describe(\\"foo\\", () => { expect(true).toBe(true); });"
     `);
   });
