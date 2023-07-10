@@ -62,15 +62,31 @@ export async function processBatchAsync(
 
         // Checks if a .ts override file exists and stops early
         // if there is one.
-        if (fs.existsSync(filePath.replace(/\.jsx?$/, ".ts"))) {
-          reporter.foundDeclarationFile(filePath);
+        if (
+          fs.existsSync(
+            filePath
+              .replace("_test.", ".test.")
+              .replace("_testdata.", ".testdata.")
+              .replace("_flowtest.", ".typestest.")
+              .replace(/\.jsx?$/, ".ts")
+          )
+        ) {
+          reporter.foundOverrideFile(filePath);
           return;
         }
 
         // Checks if a .tsx override file exists and stops early
         // if there is one.
-        if (fs.existsSync(filePath.replace(/\.jsx?$/, ".tsx"))) {
-          reporter.foundDeclarationFile(filePath);
+        if (
+          fs.existsSync(
+            filePath
+              .replace("_test.", ".test.")
+              .replace("_testdata.", ".testdata.")
+              .replace("_flowtest.", ".typestest.")
+              .replace(/\.jsx?$/, ".tsx")
+          )
+        ) {
+          reporter.foundOverrideFile(filePath);
           return;
         }
 
