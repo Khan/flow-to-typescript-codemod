@@ -19,7 +19,13 @@ console.log("hello, world!");`;
 import yargs from "yargs";
 import {entries, keys} from "@khanacademy/wonder-stuff-core";`;
 
-    expect(await transform(src)).toMatchInlineSnapshot();
+    expect(await transform(src)).toMatchInlineSnapshot(`
+      "#!/usr/bin/env -S node -r @swc-node/register
+
+      /* eslint-disable no-console */
+      import yargs from \\"yargs\\";
+      import {entries, keys} from \\"@khanacademy/wonder-stuff-core\\";"
+    `);
   });
 
   it("should not update other shebangs", async () => {
