@@ -8,11 +8,12 @@ export function shebang({ file }: TransformerInput) {
   traverse(
     file,
     {
-      InterpreterDirective(path) {
-        const { node } = path;
-
-        if (node.value === "#!/usr/bin/env -S node -r @babel/register") {
-          node.value = "#!/usr/bin/env -S node -r @swc-node/register";
+      Program(path) {
+        const { interpreter } = path.node;
+        if (interpreter) {
+          if (interpreter.value === "/usr/bin/env -S node -r @babel/register") {
+            interpreter.value = "/usr/bin/env -S node -r @swc-node/register";
+          }
         }
       },
     },
