@@ -14,6 +14,7 @@ import { annotateNoFlow } from "./annotate-no-flow";
 import { transformFunctionalComponents } from "./functional-components";
 import { transformFilterBoolean } from "./migrate/filter-boolean";
 import { importJestGlobals } from "./import-jest-globals";
+import { shebang } from "./shebang";
 
 const standardTransformRunnerFactory = (transformer: Transformer) => {
   return (transformerInput: TransformerInput) => {
@@ -74,3 +75,6 @@ export const filterBooleanTranforRunner: Transformer =
 
 export const importJestGlobalsTransformRunner: Transformer =
   standardTransformRunnerFactory(importJestGlobals);
+
+export const shebangTransformRunner: Transformer =
+  standardTransformRunnerFactory(shebang);

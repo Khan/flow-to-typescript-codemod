@@ -11,6 +11,7 @@ import {
   removeFlowCommentTransformRunner,
   functionalComponentTransformerRunner,
   filterBooleanTranforRunner,
+  shebangTransformRunner,
 } from "./transform-runners";
 import { Transformer } from "./transformer";
 
@@ -29,6 +30,7 @@ export const defaultTransformerChain: readonly Transformer[] = [
   removeFlowCommentTransformRunner,
   functionalComponentTransformerRunner,
   filterBooleanTranforRunner,
+  shebangTransformRunner,
 
   // This transform must go last since it looks at `state` which can
   // be modified by any other transformer.
