@@ -60,6 +60,8 @@ export async function processBatchAsync(
           return;
         }
 
+        const stats = fs.statSync(filePath);
+
         // Checks if a .ts override file exists and stops early
         // if there is one.
         if (
@@ -216,7 +218,9 @@ export async function processBatchAsync(
           }
         }
 
-        await fs.outputFile(tsFilePath, newFileText);
+        // `{ mode: stats.mode }` is used to copy the file permissions from the original file.
+        // This is important for node scripts which often have the executable bit set.
+        await fs.outputFile(tsFilePath, newFileText, { mode: stats.mode });
       } catch (error) {
         // Report errors, but don’t crash the worker...
         reporter.error(filePath, error);
