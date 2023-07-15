@@ -7,8 +7,8 @@ describe("fixEslintIssues", () => {
 
   it("should replace no-unused-var with @typescript-eslint/no-unused-vars", () => {
     const input = `// @flow
-const a = 5; // eslint-disable-line no-unused-var
-// eslint-disable-next-line no-unused-var
+const a = 5; // eslint-disable-line no-unused-vars
+// eslint-disable-next-line no-unused-vars
 const b = 10;`;
 
     const output = fixEslintIssues(input, "test.js", "test.ts");
