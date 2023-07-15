@@ -4,7 +4,7 @@ export function fixEslintIssues(
   targetFilePath: string
 ) {
   let result = code.replace(
-    /no-unused-var/g,
+    /no-unused-vars/g,
     "@typescript-eslint/no-unused-vars"
   );
 
